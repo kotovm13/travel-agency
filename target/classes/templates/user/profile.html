@@ -16,9 +16,12 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <p><strong th:text="#{profile.username}">Username</strong>: <span th:text="${user.username}"></span></p>
-                    <p><strong th:text="#{profile.firstName}">First Name</strong>: <span th:text="${user.firstName ?: '-'}"></span></p>
-                    <p><strong th:text="#{profile.lastName}">Last Name</strong>: <span th:text="${user.lastName ?: '-'}"></span></p>
-                    <p><strong th:text="#{profile.email}">Email</strong>: <span th:text="${user.email ?: '-'}"></span></p>
+                    <p><strong th:text="#{profile.firstName}">First Name</strong>: <span
+                            th:text="${user.firstName ?: '-'}"></span></p>
+                    <p><strong th:text="#{profile.lastName}">Last Name</strong>: <span
+                            th:text="${user.lastName ?: '-'}"></span></p>
+                    <p><strong th:text="#{profile.email}">Email</strong>: <span th:text="${user.email ?: '-'}"></span>
+                    </p>
                     <p><strong th:text="#{profile.phone}">Phone</strong>: <span th:text="${user.phoneNumber ?: '-'}"></span></p>
                     <p><strong th:text="#{profile.balance}">Balance</strong>: $<span th:text="${user.balance}"></span></p>
                 </div>
@@ -48,22 +51,28 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" th:text="#{profile.firstName}">First Name</label>
-                                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                                <input type="text" class="form-control"
+                                       th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
                                        th:field="*{firstName}"/>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
+                                     th:errors="*{firstName}"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" th:text="#{profile.lastName}">Last Name</label>
-                                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                                <input type="text" class="form-control"
+                                       th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
                                        th:field="*{lastName}"/>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+                                     th:errors="*{lastName}"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" th:text="#{profile.email}">Email</label>
-                            <input type="email" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                            <input type="email" class="form-control"
+                                   th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
                                    th:field="*{email}"/>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                                 th:errors="*{email}"></div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" th:text="#{profile.phone}">Phone</label>
@@ -76,6 +85,12 @@
                             <input type="password" class="form-control" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
                                    th:field="*{password}" th:placeholder="#{profile.change.password}"/>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" th:text="#{auth.register.confirmPassword}">Confirm Password</label>
+                            <input type="password" class="form-control" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'"
+                                   th:field="*{confirmPassword}" th:placeholder="#{auth.register.confirmPassword}"/>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
                         </div>
                         <button type="submit" class="btn btn-primary" th:text="#{common.save}">Save</button>
                     </form>
