@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{manager.orders.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <h2 th:text="#{manager.orders.title}">All Orders</h2>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Search + Filters -->
+    <form th:action="@{/manager/orders}" method="get" class="mb-3 row g-2 align-items-end">
+        <div class="col-md-3">
+            <input type="text" name="search" class="form-control form-control-sm"
+                   th:placeholder="#{manager.orders.search.title}" th:value="${search}"/>
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="username" class="form-control form-control-sm"
+                   th:placeholder="#{manager.orders.search.user}" th:value="${username}"/>
+        </div>
+        <div class="col-md-2">
+            <select name="statusFilter" class="form-select form-select-sm">
+                <option value="" th:text="#{manager.orders.filter.allStatuses}">All Statuses</option>
+                <option th:each="s : ${bookingStatuses}" th:value="${s}" th:selected="${s.name() == statusFilter}"
+                        th:text="#{${'status.' + s}}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary btn-sm" th:text="#{common.filter}">Filter</button>
+        </div>
+        <div class="col-auto" th:if="${(search != null and !search.isBlank()) or (username != null and !username.isBlank()) or (statusFilter != null and !statusFilter.isBlank())}">
+            <a th:href="@{/manager/orders}" class="btn btn-outline-secondary btn-sm"
+               th:text="#{common.reset}">Reset</a>
+        </div>
+    </form>
+
+    <div th:if="${orders.isEmpty()}" class="alert alert-info" th:text="#{manager.orders.empty}">No orders</div>
+
+    <div class="table-responsive" th:if="${!orders.isEmpty()}">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th th:text="#{voucher.title}">Title</th>
+                <th th:text="#{manager.orders.user}">User</th>
+                <th th:text="#{voucher.price}">Price</th>
+                <th th:text="#{common.status}">Status</th>
+                <th th:text="#{common.actions}">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="b : ${orders}">
+                <td th:text="${b.voucherTitle}">Title</td>
+                <td th:text="${b.username}">User</td>
+                <td th:text="'$' + ${b.bookedPrice}">$1000</td>
+                <td><span class="badge"
+                          th:classappend="${b.status == 'REGISTERED'} ? 'bg-warning' : (${b.status == 'PAID'} ? 'bg-success' : 'bg-secondary')"
+                          th:text="#{${'status.' + b.status}}">Status</span></td>
+                <td th:if="${b.status == 'REGISTERED'}">
+                    <form th:action="@{/manager/orders/{id}/status(id=${b.id})}" method="post" class="d-inline">
+                        <input type="hidden" name="status" value="PAID"/>
+                        <button type="submit" class="btn btn-success btn-sm" th:text="#{manager.orders.mark.paid}">Paid</button>
+                    </form>
+                    <form th:action="@{/manager/orders/{id}/status(id=${b.id})}" method="post" class="d-inline">
+                        <input type="hidden" name="status" value="CANCELED"/>
+                        <button type="submit" class="btn btn-danger btn-sm" th:text="#{manager.orders.mark.canceled}">Cancel</button>
+                    </form>
+                </td>
+                <td th:if="${b.status == 'PAID'}">
+                    <form th:action="@{/manager/orders/{id}/status(id=${b.id})}" method="post" class="d-inline">
+                        <input type="hidden" name="status" value="CANCELED"/>
+                        <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{manager.orders.mark.canceled}">Cancel</button>
+                    </form>
+                </td>
+                <td th:if="${b.status == 'CANCELED'}">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav th:if="${orders.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${orders.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/manager/orders(page=${orders.number - 1}, search=${search}, username=${username}, statusFilter=${statusFilter})}">&laquo;</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}"
+                th:classappend="${i == orders.number} ? 'active'">
+                <a class="page-link" th:href="@{/manager/orders(page=${i}, search=${search}, username=${username}, statusFilter=${statusFilter})}" th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${orders.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/manager/orders(page=${orders.number + 1}, search=${search}, username=${username}, statusFilter=${statusFilter})}">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

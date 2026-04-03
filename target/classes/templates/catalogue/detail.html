@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head th:replace="~{fragments/layout :: head(${voucher.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2 th:text="${voucher.title}">Title</h2>
+                        <div>
+                            <span th:if="${voucher.hot}" class="badge bg-danger fs-6" th:text="#{catalogue.hot.badge}">HOT</span>
+                            <span th:if="${voucher.discount > 0}" class="badge bg-warning fs-6"
+                                  th:text="#{catalogue.discount.badge(${voucher.discount})}">% OFF</span>
+                        </div>
+                    </div>
+
+                    <p class="lead" th:text="${voucher.description}">Description</p>
+
+                    <table class="table">
+                        <tr>
+                            <th th:text="#{voucher.tourType}">Tour Type</th>
+                            <td th:text="#{${'tourType.' + voucher.tourType}}">Adventure</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{voucher.transferType}">Transfer Type</th>
+                            <td th:text="#{${'transferType.' + voucher.transferType}}">Plane</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{voucher.hotelType}">Hotel Type</th>
+                            <td th:text="#{${'hotelType.' + voucher.hotelType}}">4 Stars</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{voucher.arrivalDate}">Arrival</th>
+                            <td th:text="${#temporals.format(voucher.arrivalDate, 'dd MMM yyyy')}">01 Jul 2026</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{voucher.evictionDate}">Eviction</th>
+                            <td th:text="${#temporals.format(voucher.evictionDate, 'dd MMM yyyy')}">10 Jul 2026</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{voucher.price}">Price</th>
+                            <td>
+                                <span th:if="${voucher.discount > 0}" class="price-original" th:text="'$' + ${voucher.price}"></span>
+                                <span th:if="${voucher.discount > 0}" class="price-discounted fs-5"
+                                      th:text="'$' + ${#numbers.formatDecimal(voucher.price * (100 - voucher.discount) / 100, 1, 2)}"></span>
+                                <span th:if="${voucher.discount == 0}" class="fw-bold fs-5" th:text="'$' + ${voucher.price}"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{voucher.quantity}">Available</th>
+                            <td>
+                                <span th:if="${voucher.availableQuantity > 0}" class="text-success"
+                                      th:text="#{catalogue.available.quantity(${voucher.availableQuantity})}">5 spots left</span>
+                                <span th:if="${voucher.availableQuantity <= 0}" class="text-danger fw-bold"
+                                      th:text="#{catalogue.sold.out}">Sold Out</span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/catalogue}" class="btn btn-outline-secondary" th:text="#{common.back}">Back</a>
+                        <form th:if="${#authorization.expression('isAuthenticated()') and voucher.availableQuantity > 0}"
+                              th:action="@{/catalogue/{id}/order(id=${voucher.id})}" method="post">
+                            <button type="submit" class="btn btn-success" th:text="#{catalogue.order}">Order</button>
+                        </form>
+                        <a th:if="${!#authorization.expression('isAuthenticated()') and voucher.availableQuantity > 0}"
+                           th:href="@{/login}" class="btn btn-outline-success" th:text="#{catalogue.login.to.order}">Login to Order</a>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+                    <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

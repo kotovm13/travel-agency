@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{manager.vouchers.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="#{manager.vouchers.title}">Manage Vouchers</h2>
+        <a th:href="@{/manager/vouchers/new}" class="btn btn-primary" th:text="#{manager.vouchers.create}">Create</a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Search + Date Filter -->
+    <form th:action="@{/manager/vouchers}" method="get" class="mb-3 row g-2 align-items-end">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control form-control-sm"
+                   th:placeholder="#{catalogue.filter.search}" th:value="${search}"/>
+        </div>
+        <div class="col-md-2">
+            <select name="dateFilter" class="form-select form-select-sm">
+                <option value="" th:text="#{manager.vouchers.filter.all}">All</option>
+                <option value="active" th:selected="${dateFilter == 'active'}" th:text="#{manager.vouchers.filter.active}">Active</option>
+                <option value="expired" th:selected="${dateFilter == 'expired'}" th:text="#{manager.vouchers.filter.expired}">Expired</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="tourType" class="form-select form-select-sm">
+                <option value="" th:text="#{manager.vouchers.filter.allTypes}">All Types</option>
+                <option th:each="t : ${tourTypes}" th:value="${t}" th:selected="${t.name() == tourTypeFilter}"
+                        th:text="#{${'tourType.' + t}}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary btn-sm" th:text="#{common.filter}">Filter</button>
+        </div>
+        <div class="col-auto" th:if="${(search != null and !search.isBlank()) or (dateFilter != null and !dateFilter.isBlank()) or (tourTypeFilter != null and !tourTypeFilter.isBlank())}">
+            <a th:href="@{/manager/vouchers}" class="btn btn-outline-secondary btn-sm"
+               th:text="#{common.reset}">Reset</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th th:text="#{voucher.title}">Title</th>
+                <th th:text="#{voucher.price}">Price</th>
+                <th th:text="#{voucher.tourType}">Tour Type</th>
+                <th th:text="#{common.status}">Status</th>
+                <th th:text="#{voucher.quantity}">Qty</th>
+                <th th:text="#{common.hot}">Hot</th>
+                <th th:text="#{common.discount}">Discount</th>
+                <th th:text="#{common.actions}">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${vouchers}">
+                <td th:text="${v.title}">Title</td>
+                <td th:text="'$' + ${v.price}">$1000</td>
+                <td th:text="#{${'tourType.' + v.tourType}}">Type</td>
+                <td><span class="badge" th:classappend="${v.status == 'AVAILABLE'} ? 'bg-primary' : 'bg-secondary'"
+                          th:text="#{${'status.' + v.status}}">Status</span></td>
+                <td th:text="${v.availableQuantity + ' / ' + v.quantity}">8 / 10</td>
+                <td><span th:if="${v.hot}" class="badge bg-danger" th:text="#{catalogue.hot.badge}">HOT</span></td>
+                <td th:text="${v.discount > 0} ? ${v.discount + '%'} : '-'">0%</td>
+                <td>
+                    <a th:href="@{/manager/vouchers/{id}/edit(id=${v.id})}" class="btn btn-outline-primary btn-sm" th:text="#{common.edit}">Edit</a>
+                    <form th:action="@{/manager/vouchers/{id}/delete(id=${v.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{common.delete}">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav th:if="${vouchers.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${vouchers.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/manager/vouchers(page=${vouchers.number - 1}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}">&laquo;</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, vouchers.totalPages - 1)}"
+                th:classappend="${i == vouchers.number} ? 'active'">
+                <a class="page-link" th:href="@{/manager/vouchers(page=${i}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${vouchers.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/manager/vouchers(page=${vouchers.number + 1}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

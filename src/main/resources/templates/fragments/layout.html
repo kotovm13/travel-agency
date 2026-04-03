@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- HEAD fragment -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${title}">Travel Agency</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/flatly/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<!-- NAVBAR fragment -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}" th:text="#{app.title}">Travel Agency</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/catalogue}" th:text="#{nav.catalogue}">Catalogue</a>
+                </li>
+                <!-- USER menu -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/my-vouchers}" th:text="#{nav.my.vouchers}">My Vouchers</a>
+                </li>
+                <!-- MANAGER menu -->
+                <li class="nav-item dropdown" sec:authorize="hasAnyRole('MANAGER','ADMIN')">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       th:text="#{nav.manager}">Manager</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/manager/vouchers}"
+                               th:text="#{nav.manager.vouchers}">Manage Vouchers</a></li>
+                        <li><a class="dropdown-item" th:href="@{/manager/orders}"
+                               th:text="#{nav.manager.orders}">Manage Orders</a></li>
+                    </ul>
+                </li>
+                <!-- ADMIN menu -->
+                <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       th:text="#{nav.admin}">Admin</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/admin/users}"
+                               th:text="#{nav.admin.users}">Manage Users</a></li>
+                        <li><a class="dropdown-item" th:href="@{/admin/dashboard}"
+                               th:text="#{nav.admin.dashboard}">Dashboard</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Right side: language + auth -->
+            <ul class="navbar-nav">
+                <!-- Language switcher -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       th:text="#{common.language}">Language</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{''(lang='en')}" th:text="#{common.language.en}">English</a></li>
+                        <li><a class="dropdown-item" th:href="@{''(lang='uk')}" th:text="#{common.language.uk}">Ukrainian</a></li>
+                    </ul>
+                </li>
+                <!-- Authenticated user -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/profile}">
+                        <span th:text="${displayName}">User</span>
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-light btn-sm mt-1"
+                                th:text="#{nav.logout}">Logout</button>
+                    </form>
+                </li>
+                <!-- Not authenticated -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}" th:text="#{nav.login}">Login</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/register}" th:text="#{nav.register}">Register</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- FOOTER fragment -->
+<footer th:fragment="footer" class="bg-light text-center text-muted py-3 mt-auto">
+    <div class="container">
+        <p class="mb-0">&copy; 2026 <span th:text="#{app.title}">Travel Agency</span>. <span th:text="#{app.footer}">EPAM Courses</span>.</p>
+    </div>
+</footer>
+
+<!-- SCRIPTS fragment -->
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+</html>

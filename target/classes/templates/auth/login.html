@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{auth.login.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4" th:text="#{auth.login.title}">Login</h3>
+
+                    <div th:if="${param.error}" class="alert alert-danger" th:text="#{auth.login.error}">
+                        Invalid credentials
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success" th:text="#{auth.login.logout}">
+                        Logged out
+                    </div>
+                    <div th:if="${param.blocked}" class="alert alert-danger" th:text="#{error.user.blocked}">
+                        Account blocked
+                    </div>
+
+                    <form th:action="@{/login}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="username" class="form-label" th:text="#{auth.login.username}">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required autofocus/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label" th:text="#{auth.login.password}">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required/>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" th:text="#{auth.login.submit}">Sign In</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <p class="text-muted mb-2">or</p>
+                        <a th:href="@{/oauth2/authorization/google}" class="btn btn-outline-danger w-100">
+                            Login with Google
+                        </a>
+                    </div>
+
+                    <p class="text-center mt-3">
+                        <a th:href="@{/register}" th:text="#{auth.login.register.link}">Register</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

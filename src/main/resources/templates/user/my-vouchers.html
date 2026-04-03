@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{my.vouchers.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <h2 th:text="#{my.vouchers.title}">My Vouchers</h2>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form th:action="@{/my-vouchers}" method="get" class="mb-4 row g-2 align-items-end">
+        <div class="col-auto">
+            <label class="form-label" th:text="#{my.vouchers.filter.status}">Status</label>
+            <select name="status" class="form-select">
+                <option value="">--</option>
+                <option value="REGISTERED" th:selected="${status == 'REGISTERED'}" th:text="#{status.REGISTERED}">Registered</option>
+                <option value="PAID" th:selected="${status == 'PAID'}" th:text="#{status.PAID}">Paid</option>
+                <option value="CANCELED" th:selected="${status == 'CANCELED'}" th:text="#{status.CANCELED}">Canceled</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" th:text="#{common.filter}">Filter</button>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/my-vouchers}" class="btn btn-outline-secondary" th:text="#{common.reset}">Reset</a>
+        </div>
+    </form>
+
+    <div th:if="${bookings.isEmpty()}" class="alert alert-info" th:text="#{my.vouchers.empty}">No vouchers</div>
+
+    <div class="table-responsive" th:if="${!bookings.isEmpty()}">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th th:text="#{voucher.title}">Title</th>
+                <th th:text="#{voucher.price}">Price</th>
+                <th th:text="#{voucher.tourType}">Tour Type</th>
+                <th th:text="#{my.vouchers.bookedOn}">Booked On</th>
+                <th th:text="#{voucher.arrivalDate}">Arrival</th>
+                <th th:text="#{voucher.evictionDate}">Eviction</th>
+                <th th:text="#{common.status}">Status</th>
+                <th th:text="#{common.actions}">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="b : ${bookings}">
+                <td><a th:href="@{/catalogue/{id}(id=${b.voucherId})}" th:text="${b.voucherTitle}">Title</a></td>
+                <td th:text="'$' + ${b.bookedPrice}">$1000</td>
+                <td th:text="#{${'tourType.' + b.tourType}}">Type</td>
+                <td th:text="${#temporals.format(b.createdAt, 'dd MMM yyyy HH:mm')}">15 Jan 2026 10:00</td>
+                <td th:text="${#temporals.format(b.arrivalDate, 'dd MMM yyyy')}">01 Jul 2026</td>
+                <td th:text="${#temporals.format(b.evictionDate, 'dd MMM yyyy')}">10 Jul 2026</td>
+                <td><span class="badge"
+                          th:classappend="${b.status == 'REGISTERED'} ? 'bg-warning' : (${b.status == 'PAID'} ? 'bg-success' : 'bg-secondary')"
+                          th:text="#{${'status.' + b.status}}">Status</span></td>
+                <td>
+                    <form th:if="${b.status == 'REGISTERED'}" th:action="@{/my-vouchers/{id}/cancel(id=${b.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{my.vouchers.cancel}">Cancel</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav th:if="${bookings.totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${bookings.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/my-vouchers(page=${bookings.number - 1}, status=${status})}">&laquo;</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, bookings.totalPages - 1)}"
+                th:classappend="${i == bookings.number} ? 'active'">
+                <a class="page-link" th:href="@{/my-vouchers(page=${i}, status=${status})}" th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${bookings.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/my-vouchers(page=${bookings.number + 1}, status=${status})}">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

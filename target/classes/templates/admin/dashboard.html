@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.dashboard.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <h2 th:text="#{admin.dashboard.title}">Dashboard</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+        <div class="col">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{admin.dashboard.total.users}">Total Users</h5>
+                    <p class="card-text display-4" th:text="${stats.totalUsers}">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{admin.dashboard.active.users}">Active Users</h5>
+                    <p class="card-text display-4" th:text="${stats.activeUsers}">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{admin.dashboard.available.vouchers}">Available Vouchers</h5>
+                    <p class="card-text display-4" th:text="${stats.availableVouchers}">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{admin.dashboard.registered.orders}">Registered</h5>
+                    <p class="card-text display-4" th:text="${stats.registeredOrders}">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{admin.dashboard.paid.orders}">Paid</h5>
+                    <p class="card-text display-4" th:text="${stats.paidOrders}">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="#{admin.dashboard.canceled.orders}">Canceled</h5>
+                    <p class="card-text display-4" th:text="${stats.canceledOrders}">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title" th:text="#{admin.dashboard.total.revenue}">Total Revenue</h5>
+            <p class="card-text display-4 text-success" th:text="'$' + ${#numbers.formatDecimal(stats.totalRevenue, 1, 2)}">$0.00</p>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

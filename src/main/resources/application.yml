@@ -1,0 +1,27 @@
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:changeit}
+    key-store-type: PKCS12
+    key-alias: travelagency
+  error:
+    include-stacktrace: never
+    include-message: never
+
+spring:
+  profiles:
+    active: test
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        auto_quote_keyword: true
+    open-in-view: false
+
+  mvc:
+    format:
+      date: yyyy-MM-dd
+
+  thymeleaf:
+    cache: false
