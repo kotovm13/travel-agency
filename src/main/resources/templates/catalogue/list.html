@@ -70,12 +70,12 @@
                     <div class="row g-3 align-items-end mt-2">
                         <div class="col-md-2">
                             <label class="form-label" th:text="#{catalogue.filter.minPrice}">Min Price</label>
-                            <input type="number" step="100" min="0" th:field="*{minPrice}"
+                            <input type="number" step="1" min="0" th:field="*{minPrice}"
                                    class="form-control form-control-sm"/>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label" th:text="#{catalogue.filter.maxPrice}">Max Price</label>
-                            <input type="number" step="100" min="0" th:field="*{maxPrice}"
+                            <input type="number" step="1" min="0" th:field="*{maxPrice}"
                                    class="form-control form-control-sm"/>
                         </div>
                         <div class="col-md-2">
@@ -95,7 +95,9 @@
 
     <!-- Messages -->
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-    <div th:if="${error == null and vouchers.isEmpty()}" class="alert alert-info" th:text="#{catalogue.empty}">No tours</div>
+    <div th:if="${error == null and vouchers.isEmpty()}" class="alert alert-info" th:text="#{catalogue.empty}">No
+        tours
+    </div>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <div class="col" th:each="v : ${vouchers}">
@@ -119,7 +121,8 @@
                         </small>
                     </div>
                     <div class="mb-2">
-                        <small class="text-muted" th:text="${#temporals.format(v.arrivalDate, 'dd MMM yyyy') + ' - ' + #temporals.format(v.evictionDate, 'dd MMM yyyy')}">Dates</small>
+                        <small class="text-muted"
+                               th:text="${#temporals.format(v.arrivalDate, 'dd MMM yyyy') + ' - ' + #temporals.format(v.evictionDate, 'dd MMM yyyy')}">Dates</small>
                     </div>
 
                     <div class="mb-2">

@@ -57,8 +57,10 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                        th:text="#{common.language}">Language</a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" th:href="@{''(lang='en')}" th:text="#{common.language.en}">English</a></li>
-                        <li><a class="dropdown-item" th:href="@{''(lang='uk')}" th:text="#{common.language.uk}">Ukrainian</a></li>
+                        <li><a class="dropdown-item" th:href="@{''(lang='en')}"
+                               th:text="#{common.language.en}">English</a></li>
+                        <li><a class="dropdown-item" th:href="@{''(lang='uk')}" th:text="#{common.language.uk}">Ukrainian</a>
+                        </li>
                     </ul>
                 </li>
                 <!-- Authenticated user -->
@@ -88,7 +90,7 @@
 <!-- FOOTER fragment -->
 <footer th:fragment="footer" class="bg-light text-center text-muted py-3 mt-auto">
     <div class="container">
-        <p class="mb-0">&copy; 2026 <span th:text="#{app.title}">Travel Agency</span>. <span th:text="#{app.footer}">EPAM Courses</span>.</p>
+        <p class="mb-0">&copy; 2026 <span th:text="#{app.title}">TravelHub</span></p>
     </div>
 </footer>
 

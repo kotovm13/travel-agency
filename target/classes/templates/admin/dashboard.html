@@ -9,52 +9,64 @@
 
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
         <div class="col">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="#{admin.dashboard.total.users}">Total Users</h5>
-                    <p class="card-text display-4" th:text="${stats.totalUsers}">0</p>
+            <a th:href="@{/admin/users}" class="text-decoration-none">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="#{admin.dashboard.total.users}">Total Users</h5>
+                        <p class="card-text display-4" th:text="${stats.totalUsers}">0</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="#{admin.dashboard.active.users}">Active Users</h5>
-                    <p class="card-text display-4" th:text="${stats.activeUsers}">0</p>
+            <a th:href="@{/admin/users(statusFilter='active')}" class="text-decoration-none">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="#{admin.dashboard.active.users}">Active Users</h5>
+                        <p class="card-text display-4" th:text="${stats.activeUsers}">0</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="#{admin.dashboard.available.vouchers}">Available Vouchers</h5>
-                    <p class="card-text display-4" th:text="${stats.availableVouchers}">0</p>
+            <a th:href="@{/manager/vouchers(dateFilter='active')}" class="text-decoration-none">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="#{admin.dashboard.available.vouchers}">Available Vouchers</h5>
+                        <p class="card-text display-4" th:text="${stats.availableVouchers}">0</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="#{admin.dashboard.registered.orders}">Registered</h5>
-                    <p class="card-text display-4" th:text="${stats.registeredOrders}">0</p>
+            <a th:href="@{/manager/orders(statusFilter='REGISTERED')}" class="text-decoration-none">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="#{admin.dashboard.registered.orders}">Registered</h5>
+                        <p class="card-text display-4" th:text="${stats.registeredOrders}">0</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="#{admin.dashboard.paid.orders}">Paid</h5>
-                    <p class="card-text display-4" th:text="${stats.paidOrders}">0</p>
+            <a th:href="@{/manager/orders(statusFilter='PAID')}" class="text-decoration-none">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="#{admin.dashboard.paid.orders}">Paid</h5>
+                        <p class="card-text display-4" th:text="${stats.paidOrders}">0</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col">
-            <div class="card text-white bg-secondary">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="#{admin.dashboard.canceled.orders}">Canceled</h5>
-                    <p class="card-text display-4" th:text="${stats.canceledOrders}">0</p>
+            <a th:href="@{/manager/orders(statusFilter='CANCELED')}" class="text-decoration-none">
+                <div class="card text-white bg-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="#{admin.dashboard.canceled.orders}">Canceled</h5>
+                        <p class="card-text display-4" th:text="${stats.canceledOrders}">0</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
