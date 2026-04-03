@@ -50,7 +50,8 @@ jobs:
           keytool -genkeypair -alias travelagency -keyalg RSA -keysize 2048 \
             -storetype PKCS12 -keystore src/main/resources/keystore.p12 \
             -validity 365 -storepass ${{ secrets.SSL_KEY_STORE_PASSWORD }} \
-            -dname "CN=travel-agency, OU=EPAM, O=EPAM, L=Kyiv, ST=Kyiv, C=UA"
+            -dname "CN=travel-agency, OU=EPAM, O=EPAM, L=Kyiv, ST=Kyiv, C=UA" \
+            -noprompt 2>/dev/null || true
 
       - name: Build jar
         run: mvn package -DskipTests -B
