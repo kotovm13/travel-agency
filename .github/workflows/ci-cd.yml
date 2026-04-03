@@ -1,0 +1,89 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DOCKER_IMAGE: travel-agency
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run tests
+        run: mvn verify -B
+
+  deploy:
+    name: Deploy to AWS
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Generate SSL keystore
+        run: |
+          keytool -genkeypair -alias travelagency -keyalg RSA -keysize 2048 \
+            -storetype PKCS12 -keystore src/main/resources/keystore.p12 \
+            -validity 365 -storepass ${{ secrets.SSL_KEY_STORE_PASSWORD }} \
+            -dname "CN=travel-agency, OU=EPAM, O=EPAM, L=Kyiv, ST=Kyiv, C=UA"
+
+      - name: Build jar
+        run: mvn package -DskipTests -B
+
+      - name: Build Docker image
+        run: |
+          docker build -t $DOCKER_IMAGE:latest .
+          docker save $DOCKER_IMAGE:latest | gzip > image.tar.gz
+
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "image.tar.gz,docker-compose.prod.yml"
+          target: "/home/${{ secrets.EC2_USERNAME }}/travel-agency"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.EC2_USERNAME }}/travel-agency
+            docker load < image.tar.gz
+            export DB_NAME=${{ secrets.DB_NAME }}
+            export DB_USERNAME=${{ secrets.DB_USERNAME }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            export SSL_KEY_STORE_PASSWORD=${{ secrets.SSL_KEY_STORE_PASSWORD }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            docker compose -f docker-compose.prod.yml up -d
+            rm image.tar.gz
