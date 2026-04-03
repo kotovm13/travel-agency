@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
 
 env:
   DOCKER_IMAGE: travel-agency
@@ -86,5 +86,6 @@ jobs:
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            export OAUTH2_REDIRECT_URI=${{ secrets.OAUTH2_REDIRECT_URI }}
             docker compose -f docker-compose.prod.yml up -d
             rm image.tar.gz
