@@ -22,29 +22,42 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="firstName" class="form-label" th:text="#{profile.firstName}">First Name</label>
-                                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                                <label for="firstName" class="form-label" th:text="#{profile.firstName}">First
+                                    Name</label>
+                                <input type="text" class="form-control"
+                                       th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
                                        id="firstName" th:field="*{firstName}"/>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
+                                     th:errors="*{firstName}"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="lastName" class="form-label" th:text="#{profile.lastName}">Last Name</label>
-                                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                                <input type="text" class="form-control"
+                                       th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
                                        id="lastName" th:field="*{lastName}"/>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+                                     th:errors="*{lastName}"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label" th:text="#{profile.email}">Email</label>
-                            <input type="email" class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                            <input type="email" class="form-control"
+                                   th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
                                    id="email" th:field="*{email}"/>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                                 th:errors="*{email}"></div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label" th:text="#{auth.register.password}">Password</label>
                             <input type="password" class="form-control" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
                                    id="password" th:field="*{password}"/>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label" th:text="#{auth.register.confirmPassword}">Confirm Password</label>
+                            <input type="password" class="form-control" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'"
+                                   id="confirmPassword" th:field="*{confirmPassword}"/>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
                         </div>
                         <div class="mb-3">
                             <label for="phoneNumber" class="form-label" th:text="#{auth.register.phone}">Phone</label>

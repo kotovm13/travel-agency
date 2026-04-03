@@ -16,4 +16,8 @@ public interface UserManagementService {
     UserDTO unblockUser(UUID id, String currentUsername);
 
     UserDTO changeRole(UUID id, ChangeRoleDTO request, String currentUsername);
+
+    UserDTO getUserById(UUID id);
+
+    void resetPassword(UUID id, String currentUsername);
 }

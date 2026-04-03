@@ -25,6 +25,7 @@ public class UserServiceImpl implements UserService {
     private static final String USER_NOT_FOUND_USERNAME = "User not found with username: ";
     private static final String USER_NOT_FOUND_ID = "User not found with id: ";
     private static final String USERNAME_ALREADY_EXISTS_KEY = "error.user.duplicate";
+    private static final String EMAIL_ALREADY_EXISTS_KEY = "error.user.email.duplicate";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -35,6 +36,9 @@ public class UserServiceImpl implements UserService {
     public UserDTO createUser(RegisterDTO request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateUsernameException(USERNAME_ALREADY_EXISTS_KEY, request.getUsername());
+        }
+        if (request.getEmail() != null && !request.getEmail().isBlank() && userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateUsernameException(EMAIL_ALREADY_EXISTS_KEY, request.getEmail());
         }
 
         User user = User.builder()
@@ -77,6 +81,9 @@ public class UserServiceImpl implements UserService {
             user.setLastName(request.getLastName());
         }
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            if (!request.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+                throw new DuplicateUsernameException(EMAIL_ALREADY_EXISTS_KEY, request.getEmail());
+            }
             user.setEmail(request.getEmail());
         }
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {

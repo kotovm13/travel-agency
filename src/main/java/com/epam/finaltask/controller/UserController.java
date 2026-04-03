@@ -2,6 +2,7 @@ package com.epam.finaltask.controller;
 
 import com.epam.finaltask.dto.request.TopUpDTO;
 import com.epam.finaltask.dto.request.UserUpdateDTO;
+import com.epam.finaltask.exception.DuplicateUsernameException;
 import com.epam.finaltask.exception.InvalidOrderStatusException;
 import com.epam.finaltask.service.OrderService;
 import com.epam.finaltask.service.UserService;
@@ -70,8 +71,12 @@ public class UserController {
             return VIEW_PROFILE;
         }
 
-        userService.updateProfile(principal.getName(), updateDTO);
-        redirectAttributes.addFlashAttribute(ATTR_SUCCESS, getMessage("success.profile.updated"));
+        try {
+            userService.updateProfile(principal.getName(), updateDTO);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS, getMessage("success.profile.updated"));
+        } catch (DuplicateUsernameException e) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR, getMessage(e.getMessageKey(), e.getArgs()));
+        }
         return REDIRECT_PROFILE;
     }
 

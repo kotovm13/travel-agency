@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{admin.users.detail.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 th:text="#{admin.users.detail.title}">User Details</h2>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <th th:text="#{profile.username}">Username</th>
+                            <td th:text="${user.username}">user</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{profile.firstName}">First Name</th>
+                            <td th:text="${user.firstName ?: '-'}">John</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{profile.lastName}">Last Name</th>
+                            <td th:text="${user.lastName ?: '-'}">Doe</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{profile.email}">Email</th>
+                            <td th:text="${user.email ?: '-'}">john@test.com</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{profile.phone}">Phone</th>
+                            <td th:text="${user.phoneNumber ?: '-'}">+380501234567</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{profile.balance}">Balance</th>
+                            <td th:text="'$' + ${user.balance}">$0</td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{admin.users.role}">Role</th>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${user.role == 'ADMIN'} ? 'bg-danger' : (${user.role == 'MANAGER'} ? 'bg-primary' : 'bg-secondary')"
+                                      th:text="#{${'role.' + user.role}}">Role</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th th:text="#{admin.users.status}">Status</th>
+                            <td>
+                                <span th:if="${user.active}" class="badge bg-success" th:text="#{admin.users.active}">Active</span>
+                                <span th:if="${!user.active}" class="badge bg-danger" th:text="#{admin.users.blocked}">Blocked</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/users}" class="btn btn-outline-secondary" th:text="#{common.back}">Back</a>
+                <form th:if="${user.username != currentUsername}"
+                      th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-warning" th:text="#{admin.users.reset.password}">Reset Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

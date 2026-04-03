@@ -1,5 +1,7 @@
 package com.epam.finaltask.dto.request;
 
+import com.epam.finaltask.validation.PasswordConfirmable;
+import com.epam.finaltask.validation.PasswordMatch;
 import com.epam.finaltask.validation.StrongPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -13,7 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserUpdateDTO {
+@PasswordMatch
+public class UserUpdateDTO implements PasswordConfirmable {
 
     @Size(max = 50, message = "{validation.user.firstName.size}")
     private String firstName;
@@ -21,7 +24,7 @@ public class UserUpdateDTO {
     @Size(max = 50, message = "{validation.user.lastName.size}")
     private String lastName;
 
-    @Email(regexp = ".+@.+\\..+", message = "{validation.user.email.invalid}")
+    @Email(regexp = "^$|.+@.+\\..+", message = "{validation.user.email.invalid}")
     private String email;
 
     @Pattern(regexp = "^$|^\\+?\\d{10,15}$", message = "{validation.user.phone.pattern}")
@@ -29,4 +32,6 @@ public class UserUpdateDTO {
 
     @StrongPassword
     private String password;
+
+    private String confirmPassword;
 }

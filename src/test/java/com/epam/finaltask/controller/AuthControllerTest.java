@@ -46,7 +46,9 @@ class AuthControllerTest {
     private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;
 
     @MockitoBean
-    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;    @Test
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    @Test
     @DisplayName("GET /login returns login page")
     void loginPage() throws Exception {
         mockMvc.perform(get("/login"))
@@ -72,6 +74,7 @@ class AuthControllerTest {
                         .with(csrf())
                         .param("username", "newuser")
                         .param("password", "Password1!")
+                        .param("confirmPassword", "Password1!")
                         .param("firstName", "John")
                         .param("lastName", "Doe")
                         .param("email", "john@test.com")

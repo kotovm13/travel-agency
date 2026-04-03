@@ -26,14 +26,19 @@
         <div class="col-md-2">
             <select name="statusFilter" class="form-select form-select-sm">
                 <option value="" th:text="#{admin.users.filter.allStatuses}">All Statuses</option>
-                <option value="active" th:selected="${statusFilter == 'active'}" th:text="#{admin.users.active}">Active</option>
-                <option value="blocked" th:selected="${statusFilter == 'blocked'}" th:text="#{admin.users.blocked}">Blocked</option>
+                <option value="active" th:selected="${statusFilter == 'active'}" th:text="#{admin.users.active}">
+                    Active
+                </option>
+                <option value="blocked" th:selected="${statusFilter == 'blocked'}" th:text="#{admin.users.blocked}">
+                    Blocked
+                </option>
             </select>
         </div>
         <div class="col-auto">
             <button type="submit" class="btn btn-primary btn-sm" th:text="#{common.filter}">Filter</button>
         </div>
-        <div class="col-auto" th:if="${(search != null and !search.isBlank()) or (roleFilter != null and !roleFilter.isBlank()) or (statusFilter != null and !statusFilter.isBlank())}">
+        <div class="col-auto"
+             th:if="${(search != null and !search.isBlank()) or (roleFilter != null and !roleFilter.isBlank()) or (statusFilter != null and !statusFilter.isBlank())}">
             <a th:href="@{/admin/users}" class="btn btn-outline-secondary btn-sm"
                th:text="#{common.reset}">Reset</a>
         </div>
@@ -63,37 +68,26 @@
                     <span th:if="${!u.active}" class="badge bg-danger" th:text="#{admin.users.blocked}">Blocked</span>
                 </td>
                 <td>
-                    <th:block th:if="${u.username != currentUsername}">
-                        <!-- Block/Unblock -->
-                        <form th:if="${u.active}" th:action="@{/admin/users/{id}/block(id=${u.id})}" method="post"
-                              class="d-inline">
-                            <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{admin.users.block}">
-                                Block
-                            </button>
-                        </form>
-                        <form th:if="${!u.active}" th:action="@{/admin/users/{id}/unblock(id=${u.id})}" method="post"
-                              class="d-inline">
-                            <button type="submit" class="btn btn-outline-success btn-sm"
-                                    th:text="#{admin.users.unblock}">Unblock
-                            </button>
-                        </form>
-                        <!-- Change Role -->
-                        <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post" class="d-inline">
-                            <select name="role" class="form-select form-select-sm d-inline w-auto">
-                                <option value="USER" th:selected="${u.role == 'USER'}" th:text="#{role.USER}">User
-                                </option>
-                                <option value="MANAGER" th:selected="${u.role == 'MANAGER'}" th:text="#{role.MANAGER}">
-                                    Manager
-                                </option>
-                                <option value="ADMIN" th:selected="${u.role == 'ADMIN'}" th:text="#{role.ADMIN}">Admin
-                                </option>
-                            </select>
-                            <button type="submit" class="btn btn-outline-primary btn-sm"
-                                    th:text="#{admin.users.change.role}">Change
-                            </button>
-                        </form>
-                    </th:block>
-                    <span th:if="${u.username == currentUsername}" class="text-muted">-</span>
+                    <div class="d-flex gap-1 align-items-center">
+                        <a th:href="@{/admin/users/{id}(id=${u.id})}" class="btn btn-outline-info btn-sm"
+                           th:text="#{admin.users.view}">View</a>
+                        <th:block th:if="${u.username != currentUsername}">
+                            <form th:if="${u.active}" th:action="@{/admin/users/{id}/block(id=${u.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{admin.users.block}">Block</button>
+                            </form>
+                            <form th:if="${!u.active}" th:action="@{/admin/users/{id}/unblock(id=${u.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success btn-sm" th:text="#{admin.users.unblock}">Unblock</button>
+                            </form>
+                            <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post" class="d-inline">
+                                <select name="role" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                    <option value="USER" th:selected="${u.role == 'USER'}" th:text="#{role.USER}">User</option>
+                                    <option value="MANAGER" th:selected="${u.role == 'MANAGER'}" th:text="#{role.MANAGER}">Manager</option>
+                                    <option value="ADMIN" th:selected="${u.role == 'ADMIN'}" th:text="#{role.ADMIN}">Admin</option>
+                                </select>
+                            </form>
+                        </th:block>
+                        <span th:if="${u.username == currentUsername}" class="text-muted">-</span>
+                    </div>
                 </td>
             </tr>
             </tbody>
@@ -103,14 +97,18 @@
     <nav th:if="${users.totalPages > 1}" class="mt-4">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${users.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin/users(page=${users.number - 1}, search=${search}, roleFilter=${roleFilter}, statusFilter=${statusFilter})}">&laquo;</a>
+                <a class="page-link"
+                   th:href="@{/admin/users(page=${users.number - 1}, search=${search}, roleFilter=${roleFilter}, statusFilter=${statusFilter})}">&laquo;</a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"
                 th:classappend="${i == users.number} ? 'active'">
-                <a class="page-link" th:href="@{/admin/users(page=${i}, search=${search}, roleFilter=${roleFilter}, statusFilter=${statusFilter})}" th:text="${i + 1}">1</a>
+                <a class="page-link"
+                   th:href="@{/admin/users(page=${i}, search=${search}, roleFilter=${roleFilter}, statusFilter=${statusFilter})}"
+                   th:text="${i + 1}">1</a>
             </li>
             <li class="page-item" th:classappend="${users.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin/users(page=${users.number + 1}, search=${search}, roleFilter=${roleFilter}, statusFilter=${statusFilter})}">&raquo;</a>
+                <a class="page-link"
+                   th:href="@{/admin/users(page=${users.number + 1}, search=${search}, roleFilter=${roleFilter}, statusFilter=${statusFilter})}">&raquo;</a>
             </li>
         </ul>
     </nav>

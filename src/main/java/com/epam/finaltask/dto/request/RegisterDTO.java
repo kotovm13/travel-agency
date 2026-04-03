@@ -1,5 +1,7 @@
 package com.epam.finaltask.dto.request;
 
+import com.epam.finaltask.validation.PasswordConfirmable;
+import com.epam.finaltask.validation.PasswordMatch;
 import com.epam.finaltask.validation.StrongPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterDTO {
+@PasswordMatch
+public class RegisterDTO implements PasswordConfirmable {
 
     @NotBlank(message = "{validation.user.username.required}")
     @Size(min = 3, max = 50, message = "{validation.user.username.size}")
@@ -38,4 +41,6 @@ public class RegisterDTO {
 
     @Pattern(regexp = "^$|^\\+?\\d{10,15}$", message = "{validation.user.phone.pattern}")
     private String phoneNumber;
+
+    private String confirmPassword;
 }

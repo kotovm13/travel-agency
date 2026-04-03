@@ -79,6 +79,24 @@ public class AdminController {
         return REDIRECT_USERS;
     }
 
+    @GetMapping("/users/{id}")
+    public String viewUser(@PathVariable UUID id,
+                           java.security.Principal principal,
+                           Model model) {
+        model.addAttribute("user", userManagementService.getUserById(id));
+        model.addAttribute("currentUsername", principal.getName());
+        return "admin/user-detail";
+    }
+
+    @PostMapping("/users/{id}/reset-password")
+    public String resetPassword(@PathVariable UUID id,
+                                java.security.Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        userManagementService.resetPassword(id, principal.getName());
+        redirectAttributes.addFlashAttribute(ATTR_SUCCESS, getMessage("success.password.reset"));
+        return "redirect:/admin/users/" + id;
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("stats", statsService.getStats());

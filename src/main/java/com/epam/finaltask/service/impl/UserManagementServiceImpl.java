@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +30,11 @@ public class UserManagementServiceImpl implements UserManagementService {
     private static final String CANNOT_MODIFY_SELF = "Cannot modify your own account";
     private static final String STATUS_ACTIVE = "active";
     private static final String STATUS_BLOCKED = "blocked";
+    private static final String DEFAULT_PASSWORD = "12345678";
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
     private final com.epam.finaltask.config.BlockedUserFilter blockedUserFilter;
 
     @Override
@@ -85,6 +88,21 @@ public class UserManagementServiceImpl implements UserManagementService {
         validateNotSelf(user, currentUsername);
         user.setRole(Role.valueOf(request.getRole()));
         return userMapper.toUserDTO(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDTO getUserById(UUID id) {
+        return userMapper.toUserDTO(findById(id));
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(UUID id, String currentUsername) {
+        User user = findById(id);
+        validateNotSelf(user, currentUsername);
+        user.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
+        userRepository.save(user);
     }
 
     private void validateNotSelf(User targetUser, String currentUsername) {
