@@ -249,7 +249,7 @@ class VoucherServiceImplTest {
             when(voucherRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
                     .thenReturn(page);
             when(voucherMapper.toVoucherDTO(testVoucher)).thenReturn(testVoucherDTO);
-            when(bookingRepository.countActiveBookingsByVoucherId(VOUCHER_ID)).thenReturn(0L);
+            when(bookingRepository.countActiveBookingsByVoucherIds(any())).thenReturn(java.util.Collections.emptyList());
 
             VoucherFilterDTO filter = new VoucherFilterDTO();
             Page<VoucherDTO> result = voucherService.findFiltered(filter, PAGEABLE);
@@ -264,7 +264,7 @@ class VoucherServiceImplTest {
             when(voucherRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
                     .thenReturn(page);
             when(voucherMapper.toVoucherDTO(testVoucher)).thenReturn(testVoucherDTO);
-            when(bookingRepository.countActiveBookingsByVoucherId(VOUCHER_ID)).thenReturn(0L);
+            when(bookingRepository.countActiveBookingsByVoucherIds(any())).thenReturn(java.util.Collections.emptyList());
 
             VoucherFilterDTO filter = VoucherFilterDTO.builder()
                     .tourType("ADVENTURE")
@@ -284,6 +284,7 @@ class VoucherServiceImplTest {
         void empty() {
             when(voucherRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
                     .thenReturn(Page.empty());
+            when(bookingRepository.countActiveBookingsByVoucherIds(any())).thenReturn(java.util.Collections.emptyList());
 
             VoucherFilterDTO filter = VoucherFilterDTO.builder().search("nonexistent").build();
             Page<VoucherDTO> result = voucherService.findFiltered(filter, PAGEABLE);
@@ -298,7 +299,7 @@ class VoucherServiceImplTest {
             when(voucherRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), any(Pageable.class)))
                     .thenReturn(page);
             when(voucherMapper.toVoucherDTO(testVoucher)).thenReturn(testVoucherDTO);
-            when(bookingRepository.countActiveBookingsByVoucherId(VOUCHER_ID)).thenReturn(0L);
+            when(bookingRepository.countActiveBookingsByVoucherIds(any())).thenReturn(java.util.Collections.emptyList());
 
             VoucherFilterDTO filter = VoucherFilterDTO.builder().sort("price_asc").build();
             Page<VoucherDTO> result = voucherService.findFiltered(filter, PAGEABLE);

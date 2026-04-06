@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CatalogueController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, com.epam.finaltask.config.AppProperties.class})
 @DisplayName("CatalogueController")
 class CatalogueControllerTest {
 
@@ -53,7 +53,8 @@ class CatalogueControllerTest {
     private com.epam.finaltask.config.JwtService jwtService;
 
     @MockitoBean
-    private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;    private static final UUID VOUCHER_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
+    private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;
+    private static final UUID VOUCHER_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
 
     @MockitoBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;

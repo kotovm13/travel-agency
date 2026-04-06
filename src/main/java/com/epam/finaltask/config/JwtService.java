@@ -3,6 +3,7 @@ package com.epam.finaltask.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,12 @@ import java.util.Date;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    private static final long EXPIRATION_MS = 86400000; // 24 hours
+    private final AppProperties appProperties;
 
-    @Value("${JWT_SECRET:404E635263336A586E3272357538782F413F4428472B4B6250645367566B5970}")
+    @Value("${JWT_SECRET}")
     private String secretKey;
 
     public String generateToken(UserDetails userDetails) {
@@ -25,7 +27,7 @@ public class JwtService {
                 .claims(Map.of("role", userDetails.getAuthorities().iterator().next().getAuthority()))
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .expiration(new Date(System.currentTimeMillis() + appProperties.getSecurity().getJwtExpirationMs()))
                 .signWith(getSigningKey())
                 .compact();
     }

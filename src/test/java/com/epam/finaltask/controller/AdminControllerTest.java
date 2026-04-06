@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AdminController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, com.epam.finaltask.config.AppProperties.class})
 @DisplayName("AdminController")
 class AdminControllerTest {
 
@@ -54,7 +54,8 @@ class AdminControllerTest {
     private com.epam.finaltask.config.JwtService jwtService;
 
     @MockitoBean
-    private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @MockitoBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;

@@ -22,8 +22,12 @@
         <div class="col-md-2">
             <select name="dateFilter" class="form-select form-select-sm">
                 <option value="" th:text="#{manager.vouchers.filter.all}">All</option>
-                <option value="active" th:selected="${dateFilter == 'active'}" th:text="#{manager.vouchers.filter.active}">Active</option>
-                <option value="expired" th:selected="${dateFilter == 'expired'}" th:text="#{manager.vouchers.filter.expired}">Expired</option>
+                <option value="active" th:selected="${dateFilter == 'active'}"
+                        th:text="#{manager.vouchers.filter.active}">Active
+                </option>
+                <option value="expired" th:selected="${dateFilter == 'expired'}"
+                        th:text="#{manager.vouchers.filter.expired}">Expired
+                </option>
             </select>
         </div>
         <div class="col-md-2">
@@ -36,7 +40,8 @@
         <div class="col-auto">
             <button type="submit" class="btn btn-primary btn-sm" th:text="#{common.filter}">Filter</button>
         </div>
-        <div class="col-auto" th:if="${(search != null and !search.isBlank()) or (dateFilter != null and !dateFilter.isBlank()) or (tourTypeFilter != null and !tourTypeFilter.isBlank())}">
+        <div class="col-auto"
+             th:if="${(search != null and !search.isBlank()) or (dateFilter != null and !dateFilter.isBlank()) or (tourTypeFilter != null and !tourTypeFilter.isBlank())}">
             <a th:href="@{/manager/vouchers}" class="btn btn-outline-secondary btn-sm"
                th:text="#{common.reset}">Reset</a>
         </div>
@@ -80,15 +85,18 @@
     <nav th:if="${vouchers.totalPages > 1}" class="mt-4">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${vouchers.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/manager/vouchers(page=${vouchers.number - 1}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}">&laquo;</a>
+                <a class="page-link"
+                   th:href="@{/manager/vouchers(page=${vouchers.number - 1}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}">&laquo;</a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(0, vouchers.totalPages - 1)}"
                 th:classappend="${i == vouchers.number} ? 'active'">
-                <a class="page-link" th:href="@{/manager/vouchers(page=${i}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}"
+                <a class="page-link"
+                   th:href="@{/manager/vouchers(page=${i}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}"
                    th:text="${i + 1}">1</a>
             </li>
             <li class="page-item" th:classappend="${vouchers.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/manager/vouchers(page=${vouchers.number + 1}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}">&raquo;</a>
+                <a class="page-link"
+                   th:href="@{/manager/vouchers(page=${vouchers.number + 1}, search=${search}, dateFilter=${dateFilter}, tourType=${tourTypeFilter})}">&raquo;</a>
             </li>
         </ul>
     </nav>

@@ -18,12 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static com.epam.finaltask.util.ErrorConstants.USER_NOT_FOUND_ID;
+import static com.epam.finaltask.util.ErrorConstants.USER_NOT_FOUND_USERNAME;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private static final String USER_NOT_FOUND_USERNAME = "User not found with username: ";
-    private static final String USER_NOT_FOUND_ID = "User not found with id: ";
     private static final String USERNAME_ALREADY_EXISTS_KEY = "error.user.duplicate";
     private static final String EMAIL_ALREADY_EXISTS_KEY = "error.user.email.duplicate";
 

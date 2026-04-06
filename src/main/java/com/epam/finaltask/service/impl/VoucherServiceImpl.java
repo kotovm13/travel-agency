@@ -22,13 +22,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.epam.finaltask.util.ErrorConstants.VOUCHER_NOT_FOUND_ID;
 
 @Service
 @RequiredArgsConstructor
 public class VoucherServiceImpl implements VoucherService {
 
-    private static final String VOUCHER_NOT_FOUND = "Voucher not found with id: ";
     private static final String QUANTITY_BELOW_BOOKINGS_KEY = "error.voucher.quantity.below.bookings";
     private static final String PRICE_RANGE_INVALID_KEY = "error.filter.price.range.invalid";
     private static final String DELETE_ACTIVE_BOOKINGS_KEY = "error.voucher.delete.active.bookings";
@@ -71,7 +75,7 @@ public class VoucherServiceImpl implements VoucherService {
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void delete(UUID id) {
         if (!voucherRepository.existsById(id)) {
-            throw new VoucherNotFoundException(VOUCHER_NOT_FOUND + id);
+            throw new VoucherNotFoundException(VOUCHER_NOT_FOUND_ID + id);
         }
         long activeBookings = bookingRepository.countActiveBookingsByVoucherId(id);
         if (activeBookings > 0) {
@@ -131,7 +135,7 @@ public class VoucherServiceImpl implements VoucherService {
 
         Pageable sortedPageable = applySorting(pageable, filter.getSort());
 
-        return voucherRepository.findAll(spec, sortedPageable).map(this::toEnrichedDTO);
+        return toEnrichedPage(voucherRepository.findAll(spec, sortedPageable));
     }
 
     @Override
@@ -152,7 +156,7 @@ public class VoucherServiceImpl implements VoucherService {
             spec = spec.and(VoucherSpecification.hasTourType(tourType));
         }
 
-        return voucherRepository.findAll(spec, pageable).map(this::toEnrichedDTO);
+        return toEnrichedPage(voucherRepository.findAll(spec, pageable));
     }
 
     private Pageable applySorting(Pageable pageable, String sort) {
@@ -173,6 +177,19 @@ public class VoucherServiceImpl implements VoucherService {
         return value != null && !value.isBlank();
     }
 
+    private Page<VoucherDTO> toEnrichedPage(Page<Voucher> page) {
+        List<UUID> ids = page.getContent().stream().map(Voucher::getId).toList();
+        Map<UUID, Long> countsMap = bookingRepository.countActiveBookingsByVoucherIds(ids).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
+
+        return page.map(voucher -> {
+            VoucherDTO dto = voucherMapper.toVoucherDTO(voucher);
+            long activeBookings = countsMap.getOrDefault(voucher.getId(), 0L);
+            dto.setAvailableQuantity(voucher.getQuantity() - activeBookings);
+            return dto;
+        });
+    }
+
     private VoucherDTO toEnrichedDTO(Voucher voucher) {
         VoucherDTO dto = voucherMapper.toVoucherDTO(voucher);
         long activeBookings = bookingRepository.countActiveBookingsByVoucherId(voucher.getId());
@@ -182,6 +199,6 @@ public class VoucherServiceImpl implements VoucherService {
 
     private Voucher findVoucherById(UUID id) {
         return voucherRepository.findById(id)
-                .orElseThrow(() -> new VoucherNotFoundException(VOUCHER_NOT_FOUND + id));
+                .orElseThrow(() -> new VoucherNotFoundException(VOUCHER_NOT_FOUND_ID + id));
     }
 }

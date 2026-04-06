@@ -17,6 +17,7 @@ public final class VoucherSpecification {
     private static final String FIELD_HOTEL_TYPE = "hotelType";
     private static final String FIELD_PRICE = "price";
     private static final String FIELD_TITLE = "title";
+    private static final String FIELD_ARRIVAL_DATE = "arrivalDate";
 
     private VoucherSpecification() {
     }
@@ -50,11 +51,11 @@ public final class VoucherSpecification {
     }
 
     public static Specification<Voucher> arrivalDateAfterToday() {
-        return (root, query, cb) -> cb.greaterThan(root.get("arrivalDate"), LocalDate.now());
+        return (root, query, cb) -> cb.greaterThan(root.get(FIELD_ARRIVAL_DATE), LocalDate.now());
     }
 
     public static Specification<Voucher> arrivalDateBeforeOrEqualToday() {
-        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("arrivalDate"), LocalDate.now());
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(FIELD_ARRIVAL_DATE), LocalDate.now());
     }
 
     public static Specification<Voucher> titleContains(String search) {

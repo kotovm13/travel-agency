@@ -2,11 +2,7 @@ package com.epam.finaltask.service.impl;
 
 import com.epam.finaltask.dto.request.ChangeStatusDTO;
 import com.epam.finaltask.dto.response.BookingDTO;
-import com.epam.finaltask.exception.BookingNotFoundException;
-import com.epam.finaltask.exception.InsufficientBalanceException;
-import com.epam.finaltask.exception.InvalidOrderStatusException;
-import com.epam.finaltask.exception.UserNotFoundException;
-import com.epam.finaltask.exception.VoucherNotFoundException;
+import com.epam.finaltask.exception.*;
 import com.epam.finaltask.mapper.BookingMapper;
 import com.epam.finaltask.model.Booking;
 import com.epam.finaltask.model.User;
@@ -29,13 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static com.epam.finaltask.util.ErrorConstants.*;
+
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private static final String VOUCHER_NOT_FOUND = "Voucher not found with id: ";
-    private static final String BOOKING_NOT_FOUND = "Booking not found with id: ";
-    private static final String USER_NOT_FOUND = "User not found with username: ";
     private static final String VOUCHER_NOT_AVAILABLE_KEY = "error.order.not.available";
     private static final String VOUCHER_SOLD_OUT_KEY = "error.order.no.quantity";
     private static final String INSUFFICIENT_BALANCE_KEY = "error.balance.insufficient";
@@ -180,16 +175,16 @@ public class OrderServiceImpl implements OrderService {
 
     private Voucher findVoucherById(UUID id) {
         return voucherRepository.findById(id)
-                .orElseThrow(() -> new VoucherNotFoundException(VOUCHER_NOT_FOUND + id));
+                .orElseThrow(() -> new VoucherNotFoundException(VOUCHER_NOT_FOUND_ID + id));
     }
 
     private Booking findBookingById(UUID id) {
         return bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException(BOOKING_NOT_FOUND + id));
+                .orElseThrow(() -> new BookingNotFoundException(BOOKING_NOT_FOUND_ID + id));
     }
 
     private User findUserByUsername(String username) {
         return userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND + username));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_USERNAME + username));
     }
 }

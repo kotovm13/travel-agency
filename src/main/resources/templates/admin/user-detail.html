@@ -61,7 +61,9 @@
                 <a th:href="@{/admin/users}" class="btn btn-outline-secondary" th:text="#{common.back}">Back</a>
                 <form th:if="${user.username != currentUsername}"
                       th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-warning" th:text="#{admin.users.reset.password}">Reset Password</button>
+                    <button type="submit" class="btn btn-warning" th:text="#{admin.users.reset.password}">Reset
+                        Password
+                    </button>
                 </form>
             </div>
         </div>

@@ -72,17 +72,29 @@
                         <a th:href="@{/admin/users/{id}(id=${u.id})}" class="btn btn-outline-info btn-sm"
                            th:text="#{admin.users.view}">View</a>
                         <th:block th:if="${u.username != currentUsername}">
-                            <form th:if="${u.active}" th:action="@{/admin/users/{id}/block(id=${u.id})}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{admin.users.block}">Block</button>
+                            <form th:if="${u.active}" th:action="@{/admin/users/{id}/block(id=${u.id})}" method="post"
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        th:text="#{admin.users.block}">Block
+                                </button>
                             </form>
-                            <form th:if="${!u.active}" th:action="@{/admin/users/{id}/unblock(id=${u.id})}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-success btn-sm" th:text="#{admin.users.unblock}">Unblock</button>
+                            <form th:if="${!u.active}" th:action="@{/admin/users/{id}/unblock(id=${u.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success btn-sm"
+                                        th:text="#{admin.users.unblock}">Unblock
+                                </button>
                             </form>
                             <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post" class="d-inline">
-                                <select name="role" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
-                                    <option value="USER" th:selected="${u.role == 'USER'}" th:text="#{role.USER}">User</option>
-                                    <option value="MANAGER" th:selected="${u.role == 'MANAGER'}" th:text="#{role.MANAGER}">Manager</option>
-                                    <option value="ADMIN" th:selected="${u.role == 'ADMIN'}" th:text="#{role.ADMIN}">Admin</option>
+                                <select name="role" class="form-select form-select-sm d-inline w-auto"
+                                        onchange="this.form.submit()">
+                                    <option value="USER" th:selected="${u.role == 'USER'}" th:text="#{role.USER}">User
+                                    </option>
+                                    <option value="MANAGER" th:selected="${u.role == 'MANAGER'}"
+                                            th:text="#{role.MANAGER}">Manager
+                                    </option>
+                                    <option value="ADMIN" th:selected="${u.role == 'ADMIN'}" th:text="#{role.ADMIN}">
+                                        Admin
+                                    </option>
                                 </select>
                             </form>
                         </th:block>

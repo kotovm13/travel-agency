@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS "user" (
     username        VARCHAR(50)     NOT NULL UNIQUE,
     password        VARCHAR(255)    NOT NULL,
     role            VARCHAR(20)     NOT NULL CHECK (role IN ('USER', 'MANAGER', 'ADMIN')),
-    first_name      VARCHAR(50),
-    last_name       VARCHAR(50),
-    email           VARCHAR(100)    UNIQUE,
+    first_name VARCHAR(50),
+    last_name  VARCHAR(50),
+    email      VARCHAR(100) UNIQUE,
     phone_number    VARCHAR(20),
     balance         DECIMAL(10, 2)  NOT NULL DEFAULT 0.00 CHECK (balance >= 0),
     account_status  BOOLEAN         NOT NULL DEFAULT TRUE

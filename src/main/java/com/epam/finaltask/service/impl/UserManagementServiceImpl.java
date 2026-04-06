@@ -1,5 +1,7 @@
 package com.epam.finaltask.service.impl;
 
+import com.epam.finaltask.config.AppProperties;
+import com.epam.finaltask.config.BlockedUserFilter;
 import com.epam.finaltask.dto.request.ChangeRoleDTO;
 import com.epam.finaltask.dto.response.UserDTO;
 import com.epam.finaltask.exception.UserNotFoundException;
@@ -14,28 +16,29 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+
+import static com.epam.finaltask.util.ErrorConstants.USER_NOT_FOUND_ID;
 
 @Service
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class UserManagementServiceImpl implements UserManagementService {
 
-    private static final String USER_NOT_FOUND_ID = "User not found with id: ";
     private static final String CANNOT_MODIFY_SELF = "Cannot modify your own account";
     private static final String STATUS_ACTIVE = "active";
     private static final String STATUS_BLOCKED = "blocked";
-    private static final String DEFAULT_PASSWORD = "12345678";
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final com.epam.finaltask.config.BlockedUserFilter blockedUserFilter;
+    private final BlockedUserFilter blockedUserFilter;
+    private final AppProperties appProperties;
 
     @Override
     @Transactional(readOnly = true)
@@ -101,7 +104,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     public void resetPassword(UUID id, String currentUsername) {
         User user = findById(id);
         validateNotSelf(user, currentUsername);
-        user.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
+        user.setPassword(passwordEncoder.encode(appProperties.getSecurity().getDefaultPassword()));
         userRepository.save(user);
     }
 

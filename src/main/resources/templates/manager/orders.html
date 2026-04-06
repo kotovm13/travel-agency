@@ -30,7 +30,8 @@
         <div class="col-auto">
             <button type="submit" class="btn btn-primary btn-sm" th:text="#{common.filter}">Filter</button>
         </div>
-        <div class="col-auto" th:if="${(search != null and !search.isBlank()) or (username != null and !username.isBlank()) or (statusFilter != null and !statusFilter.isBlank())}">
+        <div class="col-auto"
+             th:if="${(search != null and !search.isBlank()) or (username != null and !username.isBlank()) or (statusFilter != null and !statusFilter.isBlank())}">
             <a th:href="@{/manager/orders}" class="btn btn-outline-secondary btn-sm"
                th:text="#{common.reset}">Reset</a>
         </div>
@@ -70,7 +71,9 @@
                 <td th:if="${b.status == 'PAID'}">
                     <form th:action="@{/manager/orders/{id}/status(id=${b.id})}" method="post" class="d-inline">
                         <input type="hidden" name="status" value="CANCELED"/>
-                        <button type="submit" class="btn btn-outline-danger btn-sm" th:text="#{manager.orders.mark.canceled}">Cancel</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                th:text="#{manager.orders.mark.canceled}">Cancel
+                        </button>
                     </form>
                 </td>
                 <td th:if="${b.status == 'CANCELED'}">-</td>
@@ -82,14 +85,18 @@
     <nav th:if="${orders.totalPages > 1}" class="mt-4">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${orders.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/manager/orders(page=${orders.number - 1}, search=${search}, username=${username}, statusFilter=${statusFilter})}">&laquo;</a>
+                <a class="page-link"
+                   th:href="@{/manager/orders(page=${orders.number - 1}, search=${search}, username=${username}, statusFilter=${statusFilter})}">&laquo;</a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}"
                 th:classappend="${i == orders.number} ? 'active'">
-                <a class="page-link" th:href="@{/manager/orders(page=${i}, search=${search}, username=${username}, statusFilter=${statusFilter})}" th:text="${i + 1}">1</a>
+                <a class="page-link"
+                   th:href="@{/manager/orders(page=${i}, search=${search}, username=${username}, statusFilter=${statusFilter})}"
+                   th:text="${i + 1}">1</a>
             </li>
             <li class="page-item" th:classappend="${orders.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/manager/orders(page=${orders.number + 1}, search=${search}, username=${username}, statusFilter=${statusFilter})}">&raquo;</a>
+                <a class="page-link"
+                   th:href="@{/manager/orders(page=${orders.number + 1}, search=${search}, username=${username}, statusFilter=${statusFilter})}">&raquo;</a>
             </li>
         </ul>
     </nav>

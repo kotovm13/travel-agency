@@ -69,7 +69,8 @@
                             <button type="submit" class="btn btn-success" th:text="#{catalogue.order}">Order</button>
                         </form>
                         <a th:if="${!#authorization.expression('isAuthenticated()') and voucher.availableQuantity > 0}"
-                           th:href="@{/login}" class="btn btn-outline-success" th:text="#{catalogue.login.to.order}">Login to Order</a>
+                           th:href="@{/login}" class="btn btn-outline-success" th:text="#{catalogue.login.to.order}">Login
+                            to Order</a>
                     </div>
 
                     <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>

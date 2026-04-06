@@ -25,3 +25,16 @@ spring:
 
   thymeleaf:
     cache: false
+
+app:
+  security:
+    default-password: "12345678"
+    jwt-expiration-ms: 86400000
+    blocked-cache-refresh-ms: 30000
+    password-min-length: 8
+  pagination:
+    catalogue-page-size: 9
+    manager-page-size: 10
+    user-page-size: 10
+    admin-page-size: 15
+    api-page-size: 20

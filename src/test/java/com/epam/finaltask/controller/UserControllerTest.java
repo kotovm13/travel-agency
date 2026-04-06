@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, com.epam.finaltask.config.AppProperties.class})
 @DisplayName("UserController")
 class UserControllerTest {
 
@@ -58,7 +58,9 @@ class UserControllerTest {
     private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;
 
     @MockitoBean
-    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;    @Test
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    @Test
     @WithMockUser(username = "testuser")
     @DisplayName("GET /profile returns profile page")
     void profile() throws Exception {

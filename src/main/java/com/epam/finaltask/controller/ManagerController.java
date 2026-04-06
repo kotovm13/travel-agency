@@ -2,7 +2,6 @@ package com.epam.finaltask.controller;
 
 import com.epam.finaltask.dto.request.ChangeStatusDTO;
 import com.epam.finaltask.dto.request.VoucherCreateDTO;
-import com.epam.finaltask.dto.request.VoucherFilterDTO;
 import com.epam.finaltask.dto.response.VoucherDTO;
 import com.epam.finaltask.exception.InvalidOrderStatusException;
 import com.epam.finaltask.model.enums.BookingStatus;
@@ -13,18 +12,11 @@ import com.epam.finaltask.service.OrderService;
 import com.epam.finaltask.service.VoucherService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
@@ -32,9 +24,8 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/manager")
 @RequiredArgsConstructor
-public class ManagerController {
+public class ManagerController extends BaseController {
 
-    private static final int PAGE_SIZE = 10;
     private static final String REDIRECT_VOUCHERS = "redirect:/manager/vouchers";
     private static final String REDIRECT_ORDERS = "redirect:/manager/orders";
     private static final String VIEW_VOUCHER_FORM = "manager/voucher-form";
@@ -54,7 +45,6 @@ public class ManagerController {
 
     private final VoucherService voucherService;
     private final OrderService orderService;
-    private final MessageSource messageSource;
 
     @GetMapping("/vouchers")
     public String voucherList(@RequestParam(required = false) String search,
@@ -62,7 +52,7 @@ public class ManagerController {
                               @RequestParam(required = false) String tourType,
                               @RequestParam(defaultValue = "0") int page,
                               Model model) {
-        model.addAttribute(ATTR_VOUCHERS, voucherService.findAllForManager(search, dateFilter, tourType, PageRequest.of(page, PAGE_SIZE)));
+        model.addAttribute(ATTR_VOUCHERS, voucherService.findAllForManager(search, dateFilter, tourType, PageRequest.of(page, appProperties.getPagination().getManagerPageSize())));
         model.addAttribute(ATTR_SEARCH, search);
         model.addAttribute(ATTR_DATE_FILTER, dateFilter);
         model.addAttribute("tourTypeFilter", tourType);
@@ -161,7 +151,7 @@ public class ManagerController {
                          @RequestParam(required = false) String statusFilter,
                          @RequestParam(defaultValue = "0") int page,
                          Model model) {
-        model.addAttribute(ATTR_ORDERS, orderService.getAllOrders(search, username, statusFilter, PageRequest.of(page, PAGE_SIZE)));
+        model.addAttribute(ATTR_ORDERS, orderService.getAllOrders(search, username, statusFilter, PageRequest.of(page, appProperties.getPagination().getManagerPageSize())));
         model.addAttribute(ATTR_SEARCH, search);
         model.addAttribute(ATTR_USERNAME, username);
         model.addAttribute(ATTR_STATUS_FILTER, statusFilter);
@@ -188,7 +178,4 @@ public class ManagerController {
         model.addAttribute("hotelTypes", HotelType.values());
     }
 
-    private String getMessage(String code, Object... args) {
-        return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
-    }
 }

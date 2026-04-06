@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,4 +43,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpec
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.voucher.id = :voucherId AND b.status <> 'CANCELED'")
     long countActiveBookingsByVoucherId(@Param("voucherId") UUID voucherId);
+
+    @Query("SELECT b.voucher.id, COUNT(b) FROM Booking b WHERE b.voucher.id IN :voucherIds AND b.status <> 'CANCELED' GROUP BY b.voucher.id")
+    List<Object[]> countActiveBookingsByVoucherIds(@Param("voucherIds") List<UUID> voucherIds);
 }
