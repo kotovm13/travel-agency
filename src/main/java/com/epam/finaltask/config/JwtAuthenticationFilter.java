@@ -58,6 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getRequestURI().startsWith("/api/");
+        return !request.getRequestURI().startsWith(com.epam.finaltask.util.PathConstants.PATH_API + "/");
     }
 }

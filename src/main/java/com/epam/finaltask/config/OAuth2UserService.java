@@ -28,10 +28,13 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         String googleId = oauth2User.getName();
         String email = oauth2User.getAttribute("email");
+        if (email == null || email.isBlank()) {
+            throw new OAuth2AuthenticationException("Email not provided by Google");
+        }
         String firstName = oauth2User.getAttribute("given_name");
         String lastName = oauth2User.getAttribute("family_name");
 
-        userRepository.findUserByUsername(googleId).orElseGet(() -> {
+        if (userRepository.findUserByUsername(googleId).isEmpty()) {
             log.info("Creating new user from OAuth2: googleId={}, email={}", googleId, email);
             User newUser = User.builder()
                     .username(googleId)
@@ -41,8 +44,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .lastName(lastName)
                     .role(Role.USER)
                     .build();
-            return userRepository.save(newUser);
-        });
+            userRepository.save(newUser);
+        }
 
         return oauth2User;
     }

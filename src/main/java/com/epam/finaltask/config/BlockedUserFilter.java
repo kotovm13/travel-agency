@@ -16,19 +16,14 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.epam.finaltask.util.PathConstants.*;
+
 @Component
 @Slf4j
 public class BlockedUserFilter extends OncePerRequestFilter {
 
     private static final String ANONYMOUS_USER = "anonymousUser";
-    private static final String REDIRECT_BLOCKED = "/login?blocked=true";
-    private static final String PATH_LOGIN = "/login";
-    private static final String PATH_REGISTER = "/register";
-    private static final String PATH_CSS = "/css";
-    private static final String PATH_JS = "/js";
-    private static final String PATH_IMAGES = "/images";
-    private static final String PATH_ERROR = "/error";
-    private static final long REFRESH_INTERVAL_MS = 30000; // 30 seconds delay
+    private static final String REDIRECT_BLOCKED = PATH_LOGIN + "?blocked=true";
 
     private final UserRepository userRepository;
     private final Set<String> blockedUsernames = ConcurrentHashMap.newKeySet();
@@ -69,7 +64,7 @@ public class BlockedUserFilter extends OncePerRequestFilter {
                 || path.startsWith(PATH_IMAGES) || path.startsWith(PATH_ERROR);
     }
 
-    @Scheduled(fixedRate = REFRESH_INTERVAL_MS)
+    @Scheduled(fixedRateString = "${app.security.blocked-cache-refresh-ms:30000}")
     public void refreshBlockedUsers() {
         Set<String> freshBlocked = ConcurrentHashMap.newKeySet();
         userRepository.findAllByActive(false).forEach(user -> freshBlocked.add(user.getUsername()));
