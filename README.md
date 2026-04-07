@@ -134,6 +134,24 @@ src/main/java/com/epam/finaltask/
 | **Swagger API**               | `springdoc-openapi` with Swagger UI at `/swagger-ui.html`. `SwaggerConfig` adds JWT Bearer auth scheme. `@Operation`, `@Parameter`, `@Tag` annotations on API controllers. Typed DTOs (`ApiLoginDTO`, `ApiTokenDTO`) for proper request/response schemas.                                                                                                             |
 | **Thymeleaf**                 | Server-side rendering with fragment-based layout (navbar, footer, scripts). Role-based navigation via `sec:authorize`. Bootstrap 5 styling. Collapsible filter panels. Pagination with filter param preservation. `novalidate` forms with server-side validation + Bootstrap `is-invalid` styling. Locale-aware date formatting via `#temporals`.                     |
 
+### Extra Functionality (beyond requirements)
+
+| Feature | Description |
+|---------|-------------|
+| **Google OAuth2 Login** | Full OAuth2 flow with `OAuth2UserService` — auto-creates users from Google profile, coexists with form login in the same session-based security chain. |
+| **HTTPS** | Self-signed PKCS12 certificate via `keytool`, `server.port=8443`. Docker maps 443->8443 in production. |
+| **REST API alongside MVC** | Dual presentation layer — Thymeleaf HTML for browser users, REST JSON (`/api/v1/`) for third-party integrations. Two independent `SecurityFilterChain` instances with different auth strategies (session vs JWT). |
+| **Swagger / OpenAPI** | `springdoc-openapi` with Swagger UI at `/swagger-ui.html`. JWT Bearer auth scheme for testing protected endpoints. Typed DTOs (`ApiLoginDTO`, `ApiTokenDTO`) for proper request/response schemas. |
+| **Blocked User Filter** | Real-time mid-session enforcement via `OncePerRequestFilter`. In-memory `ConcurrentHashMap` cache with `@Scheduled` refresh (configurable interval). Immediate eviction on admin block action. |
+| **AOP Logging** | `LoggingAspect` with `@Before`/`@AfterReturning`/`@AfterThrowing`/`@Around`. `SecurityEventListener` for login success/failure. Profile-specific config: DEBUG console (test), INFO + rolling file with 30-day retention (prod). |
+| **Admin Dashboard** | Stats page with 6 clickable metric cards (total users, active users, available vouchers, registered/paid/canceled orders) — each links to the relevant management page with pre-applied filter. |
+| **Docker + CI/CD** | Multi-stage Dockerfile (Maven build + JRE runtime). `docker-compose.prod.yml` with PostgreSQL + health checks. GitHub Actions pipeline for automated deployment to AWS EC2. |
+| **Password Reset** | Admin can reset any user's password to a configurable default (`app.security.default-password`) via BCrypt encoding. Self-reset prevented by `validateNotSelf()`. |
+| **Self-Protection** | Admin cannot block, demote, or reset password for their own account — `validateNotSelf()` throws `AccessDeniedException`. |
+| **N+1 Prevention** | `@EntityGraph(attributePaths = {"user", "voucher"})` on booking queries. Batch `countActiveBookingsByVoucherIds` with GROUP BY replaces per-voucher queries (2 queries per page instead of N+1). |
+| **Dual Exception Handling** | `GlobalExceptionHandler` returns Thymeleaf HTML error pages for MVC. `ApiExceptionHandler` returns JSON for REST API. Security-level 401/403 handled via custom `authenticationEntryPoint`/`accessDeniedHandler` with `ObjectMapper`. |
+| **Configurable Properties** | `AppProperties` with `@ConfigurationProperties` — typed config for security (JWT expiry, password policy, cache interval) and pagination (per-context page sizes). No scattered `@Value` annotations. |
+
 ## Running
 
 ### Prerequisites
@@ -165,7 +183,7 @@ Requires `.env` file with: `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `SSL_KEY_
 mvn test
 ```
 
-99 tests: unit (services), controller (@WebMvcTest), and integration (@SpringBootTest).
+120 tests: unit (services — 73), controller (@WebMvcTest — 46), and integration (@SpringBootTest — 1).
 
 ## Internationalization
 
