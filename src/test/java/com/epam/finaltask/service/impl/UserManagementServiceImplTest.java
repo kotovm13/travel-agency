@@ -43,6 +43,12 @@ class UserManagementServiceImplTest {
     private UserMapper userMapper;
 
     @Mock
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    @Mock
+    private com.epam.finaltask.config.AppProperties appProperties;
+
+    @Mock
     private com.epam.finaltask.config.BlockedUserFilter blockedUserFilter;
 
     @InjectMocks
@@ -209,6 +215,71 @@ class UserManagementServiceImplTest {
             assertThatThrownBy(() -> userManagementService.changeRole(USER_ID, request, ADMIN_USERNAME))
                     .isInstanceOf(UserNotFoundException.class)
                     .hasMessageContaining(USER_ID.toString());
+        }
+    }
+
+    @Nested
+    @DisplayName("getUserById")
+    class GetUserById {
+
+        @Test
+        @DisplayName("should return user when found")
+        void success() {
+            when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
+            when(userMapper.toUserDTO(testUser)).thenReturn(testUserDTO);
+
+            UserDTO result = userManagementService.getUserById(USER_ID);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(USER_ID);
+        }
+
+        @Test
+        @DisplayName("should throw when user not found")
+        void notFound() {
+            when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userManagementService.getUserById(USER_ID))
+                    .isInstanceOf(UserNotFoundException.class)
+                    .hasMessageContaining(USER_ID.toString());
+        }
+    }
+
+    @Nested
+    @DisplayName("resetPassword")
+    class ResetPassword {
+
+        @Test
+        @DisplayName("should reset password to default")
+        void success() {
+            com.epam.finaltask.config.AppProperties.Security security = new com.epam.finaltask.config.AppProperties.Security();
+            security.setDefaultPassword("12345678");
+            when(appProperties.getSecurity()).thenReturn(security);
+            when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
+            when(passwordEncoder.encode("12345678")).thenReturn("encodedDefault");
+
+            userManagementService.resetPassword(USER_ID, ADMIN_USERNAME);
+
+            assertThat(testUser.getPassword()).isEqualTo("encodedDefault");
+            verify(userRepository).save(testUser);
+        }
+
+        @Test
+        @DisplayName("should throw when trying to reset own password")
+        void cannotResetSelf() {
+            when(userRepository.findById(USER_ID)).thenReturn(Optional.of(testUser));
+
+            assertThatThrownBy(() -> userManagementService.resetPassword(USER_ID, "testuser"))
+                    .isInstanceOf(org.springframework.security.access.AccessDeniedException.class);
+        }
+
+        @Test
+        @DisplayName("should throw when user not found")
+        void notFound() {
+            when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> userManagementService.resetPassword(USER_ID, ADMIN_USERNAME))
+                    .isInstanceOf(UserNotFoundException.class);
         }
     }
 

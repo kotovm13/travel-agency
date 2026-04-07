@@ -1,104 +1,173 @@
-# Travel agency. Spring Project
+# TravelHub - Travel Agency Service
 
-The purpose of this task is to check your knowledge in Java and Spring.
+Spring Boot 3.4.4 web application for managing a travel agency with tour catalogue, booking system, and multi-role
+access control. Features both a Thymeleaf MVC frontend and a REST API with JWT authentication.
 
-Duration: **18** hours
+## Tech Stack
 
-## Description
+- **Backend:** Spring Boot 3.4.4, Spring Security, Spring Data JPA
+- **Frontend:** Thymeleaf, Bootstrap 5
+- **Database:** PostgreSQL (prod), H2 (dev/test)
+- **Auth:** Session-based (web) + JWT (API) + Google OAuth2
+- **API Docs:** Swagger / OpenAPI 3.0
+- **Deployment:** Docker, AWS EC2, GitHub Actions CI/CD
+- **Other:** Lombok, AOP logging, i18n (EN/UK)
 
-In this task, you will implement "Travel Agency Service" using MVC pattern. All the main classes are available and waiting
-for you in the appropriate folders.
+## Domain Model
 
-The class diagram of the Domain model is shown in the figure below:
+The domain consists of three entities: **User**, **Voucher**, and **Booking** (join entity with status tracking and
+price snapshot).
 
-![diagram.png](TravelAgency.jpg)
+![Domain Model](travel_agency_domain_diagram.png)
 
-The travel agency has a catalogue of tours. `Authorized user` can select tours by:
-- type (rest, excursion, shopping)
-- by price
-- by transfer type (car, plane, ship)
-- by hotel type;
+### Entities
 
-> Note: only registered users can select and order tours.
+| Entity      | Description                                                                                 |
+|-------------|---------------------------------------------------------------------------------------------|
+| **User**    | Profile, balance, role (USER/MANAGER/ADMIN). Implements `UserDetails` for Spring Security.  |
+| **Voucher** | Tour product with type, transfer, hotel, dates, price, discount, quantity, hot flag.        |
+| **Booking** | Links User to Voucher. Tracks status (REGISTERED/PAID/CANCELED) and `bookedPrice` snapshot. |
 
-`Tour` must have:
-1. Title
-2. Description
-3. Price
-4. Type of tour
-5. Type of transfer
-6. Hotel type
-7. Status (registered, paid, canceled)
-8. Arrival ate
-9. Eviction date
+### Enums
 
-Tour can also be hot.
+| Enum          | Values                                                                |
+|---------------|-----------------------------------------------------------------------|
+| Role          | USER, MANAGER, ADMIN                                                  |
+| TourType      | HEALTH, SPORTS, LEISURE, SAFARI, WINE, ECO, ADVENTURE, CULTURAL       |
+| TransferType  | BUS, TRAIN, PLANE, SHIP, PRIVATE_CAR, JEEPS, MINIBUS, ELECTRICAL_CARS |
+| HotelType     | ONE_STAR, TWO_STARS, THREE_STARS, FOUR_STARS, FIVE_STARS              |
+| VoucherStatus | AVAILABLE, DISABLED                                                   |
+| BookingStatus | REGISTERED, PAID, CANCELED                                            |
 
-`User` must have personal account, which contains information about him (name, surname, balance, email, [optional] password), as well as a list of selected tours and their current status.
+## ER Diagram (Database Schema)
 
-### Permissions
+Three tables: `user`, `voucher`, `booking`. Schema defined in `schema.sql` with CHECK constraints, indexes, and foreign
+keys.
 
-`Manager`
-- defines tour as `hot`. These tours are always displayed at the top of the list.
-- transfer the status of the tour from `registered` to `paid` or `canceled`
+![ER Diagram](travel_agency_er_diagram.png)
 
-`Administrator` has all manager functionality, plus:
-- add/delete tour
-- change tour information (all fields)
-- block/unblock user
+### Key Constraints
 
+- `user.balance >= 0`, `voucher.price > 0`, `voucher.discount` between 0-100
+- `voucher.eviction_date > voucher.arrival_date`
+- `booking.user_id` and `booking.voucher_id` are foreign keys
+- Indexes on: `voucher(tour_type, status, is_hot)`, `booking(user_id, voucher_id, status)`
 
+## Role Permissions
 
+| Feature                     | USER | MANAGER | ADMIN |
+|-----------------------------|:----:|:-------:|:-----:|
+| Browse catalogue            |  V   |    V    |   V   |
+| Order/cancel own vouchers   |  V   |    V    |   V   |
+| Top up balance              |  V   |    V    |   V   |
+| Edit profile                |  V   |    V    |   V   |
+| Create/edit/delete vouchers |      |    V    |   V   |
+| Manage booking statuses     |      |    V    |   V   |
+| View all orders             |      |    V    |   V   |
+| Block/unblock users         |      |         |   V   |
+| Change user roles           |      |         |   V   |
+| Reset user passwords        |      |         |   V   |
+| View dashboard stats        |      |         |   V   |
 
-## Commands
+## Security Architecture
 
-### Run project
+Two independent `SecurityFilterChain` instances:
 
-```mvn spring-boot:run```
+| Chain         | Scope           | Auth                | Session       | CSRF     | Errors     |
+|---------------|-----------------|---------------------|---------------|----------|------------|
+| API (Order 1) | `/api/**`       | JWT Bearer token    | Stateless     | Disabled | JSON       |
+| Web (Order 2) | Everything else | Form login + OAuth2 | Session-based | Enabled  | HTML pages |
 
+Additional filters:
 
-## Structure
+- **JwtAuthenticationFilter** - extracts/validates JWT on API requests
+- **BlockedUserFilter** - checks in-memory cache of blocked users per web request
 
-Your project is organized into several packages. Here's a brief overview of each:
+## REST API
 
-- All configuration classes are located here.
+Swagger UI available at `/swagger-ui.html` after starting the app.
 
-- **`auth`**: Contains files related to authentication.
-- **`config`**: Contains configuration files for application.
-- **`controller`**: Contains implementations of all declared controllers.
-- **`dto`**: Contains DTO files.
-- **`exeption`**: Contains custom exceptions and error handler.
-- **`mapper`**: Contains Mapper files.
-- **`model`**: Contains entities files.
-- **`repository`**: Contains repository files.
-- **`service`**: Contains service interfaces and their implementations.
-- **`token`**: Contains JWT token related files.
+| Method | Endpoint                | Auth   | Description                         |
+|--------|-------------------------|--------|-------------------------------------|
+| POST   | `/api/v1/auth/login`    | Public | Get JWT token                       |
+| GET    | `/api/v1/vouchers`      | Public | Paginated voucher list with filters |
+| GET    | `/api/v1/vouchers/{id}` | Public | Single voucher details              |
+
+API errors return JSON: `{"status": 404, "error": "...", "timestamp": "..."}`.
+
+## Project Structure
+
+```
+src/main/java/com/epam/finaltask/
+  config/          Security, JWT, OAuth2, WebMvc, Swagger, AppProperties
+  controller/      MVC controllers (Auth, Catalogue, User, Manager, Admin)
+  controller/api/  REST controllers (ApiAuth, ApiVoucher)
+  dto/             request/, response/, api/ - DTOs separated by purpose
+  exception/       Custom exceptions + GlobalExceptionHandler (HTML) + ApiExceptionHandler (JSON)
+  model/           JPA entities (User, Voucher, Booking) + enums
+  repository/      Spring Data JPA repos + Specification classes for filtering
+  service/         Service interfaces + impl/ with business logic
+  validation/      Custom validators (@StrongPassword, @PasswordMatch, @DateRange)
+  util/            PathConstants, ErrorConstants
+  aspect/          AOP LoggingAspect
+```
 
 ## Requirements
 
-You should use and successfully implement next points:
+### Required
 
-- `Spring Data JPA`
-- `Spring Security`
-- `Internationalization and Localization`
-- `Validation`
-- `Error handling`
+| Requirement                               | Implementation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|-------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Spring Data JPA**                       | JPA entities with UUID primary keys, `JpaRepository` + `JpaSpecificationExecutor` for dynamic filtering, `@EntityGraph` to solve N+1, batch queries for available quantity calculation, `@Transactional` on service methods.                                                                                                                                                                                                                                                                                     |
+| **Spring Security**                       | Two `SecurityFilterChain` instances (API + Web), `DaoAuthenticationProvider` with BCrypt, Google OAuth2 login, JWT token generation/validation, `@PreAuthorize` method-level security, custom `BlockedUserFilter` with scheduled cache refresh.                                                                                                                                                                                                                                                                  |
+| **Internationalization and Localization** | Two languages (EN, UK) with ~260 message keys each. `SessionLocaleResolver` with `?lang=` parameter switching. `MessageSource` wired into bean validation. Thymeleaf `#{key}` syntax. Default locale: Ukrainian.                                                                                                                                                                                                                                                                                                 |
+| **Validation**                            | Bean Validation (`@NotBlank`, `@Size`, `@Email`, `@DecimalMin`, `@DecimalMax`, `@Future`, `@Positive`). Custom validators: `@StrongPassword` (configurable min length + complexity), `@PasswordMatch` (cross-field confirmation via `PasswordConfirmable` interface), `@DateRange` (class-level date comparison). Business validation in services (duplicate username/email, balance, quantity). All validation messages are localized.                                                                          |
+| **Error handling**                        | `GlobalExceptionHandler` (`@ControllerAdvice`) returns Thymeleaf error pages (400/403/404/500) for MVC. `ApiExceptionHandler` (`@RestControllerAdvice`) returns JSON for REST API. Security-level errors (401/403) handled via custom `authenticationEntryPoint`/`accessDeniedHandler` in SecurityConfig. Exception hierarchy: `ResourceNotFoundException` (parent) -> `UserNotFoundException`, `VoucherNotFoundException`, `BookingNotFoundException`. `LocalizedException` interface for i18n business errors. |
 
-## Nice to have
+### Nice to Have
 
-- `Logging`
-- `Pagination and sorting`
-- `Other Spring technologies`
-- `Swagger API`
-- `Thymeleaf`
+| Requirement                   | Implementation                                                                                                                                                                                                                                                                                                                                                        |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Logging**                   | AOP-based `LoggingAspect`: `@Before` logs entry with args (DEBUG), `@AfterReturning` logs exit (DEBUG), `@AfterThrowing` logs exceptions (ERROR), `@Around` on business methods logs events (INFO/WARN). `SecurityEventListener` for login success/failure. Profile-specific config: test = DEBUG console, prod = INFO console + rolling file (30 days).              |
+| **Pagination and sorting**    | All list pages paginated via `Page<DTO>`. Configurable page sizes per context via `AppProperties` (catalogue=9, manager=10, admin=15, API=20). JPA Specifications for dynamic filtering on 4 pages: catalogue (7 filters), manager vouchers (3 filters), manager orders (3 filters), admin users (4 filters including email search). Sort by price/discount/hot flag. |
+| **Other Spring technologies** | Spring AOP (logging aspect), `@ConfigurationProperties` (typed config via `AppProperties`), `@Scheduled` (blocked user cache refresh), Spring Profiles (test/prod with separate DB and data), `@EntityGraph` (N+1 prevention), custom `ConstraintValidator` implementations.                                                                                          |
+| **Swagger API**               | `springdoc-openapi` with Swagger UI at `/swagger-ui.html`. `SwaggerConfig` adds JWT Bearer auth scheme. `@Operation`, `@Parameter`, `@Tag` annotations on API controllers. Typed DTOs (`ApiLoginDTO`, `ApiTokenDTO`) for proper request/response schemas.                                                                                                             |
+| **Thymeleaf**                 | Server-side rendering with fragment-based layout (navbar, footer, scripts). Role-based navigation via `sec:authorize`. Bootstrap 5 styling. Collapsible filter panels. Pagination with filter param preservation. `novalidate` forms with server-side validation + Bootstrap `is-invalid` styling. Locale-aware date formatting via `#temporals`.                     |
 
-## Recommendations
+## Running
 
-- Use `Lombok`
-- Use tools like `Postman` or `Insomnia`
-- Use `ModelMapper`
+### Prerequisites
 
-## Special message
+- Java 17+
+- Maven 3.9+
+- PostgreSQL 16 (or use H2 for dev)
 
-- Not forget to improvise and try to use different approaches while implementing your solution.
-- Time is limited to 18 hours. Don't waste your time.
+### Local (H2)
+
+```bash
+mvn spring-boot:run
+```
+
+App starts at `https://localhost:8443`. Default test users are seeded via `data-h2.sql`.
+
+### Docker (PostgreSQL)
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+Requires `.env` file with: `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `SSL_KEY_STORE_PASSWORD`, `GOOGLE_CLIENT_ID`,
+`GOOGLE_CLIENT_SECRET`.
+
+### Tests
+
+```bash
+mvn test
+```
+
+99 tests: unit (services), controller (@WebMvcTest), and integration (@SpringBootTest).
+
+## Internationalization
+
+Two languages: English (en) and Ukrainian (uk, default). Switch via `?lang=en` or `?lang=uk` query parameter. ~260
+message keys per language covering UI, validation errors, and business messages.

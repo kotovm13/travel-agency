@@ -70,7 +70,8 @@ class ApiVoucherControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content[0].id").value(VOUCHER_ID.toString()))
-                .andExpect(jsonPath("$.content[0].title").value("Beach Tour"));
+                .andExpect(jsonPath("$.content[0].title").value("Beach Tour"))
+                .andExpect(jsonPath("$.content.length()").value(1));
     }
 
     @Test
@@ -81,10 +82,23 @@ class ApiVoucherControllerTest {
         mockMvc.perform(get("/api/v1/vouchers")
                         .param("tourType", "ADVENTURE")
                         .param("minPrice", "100")
-                        .param("maxPrice", "500"))
+                        .param("maxPrice", "500")
+                        .param("search", "beach"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/vouchers with pagination params")
+    void getVouchersWithPagination() throws Exception {
+        when(voucherService.findFiltered(any(), any())).thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/api/v1/vouchers")
+                        .param("page", "2")
+                        .param("size", "5"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -112,5 +126,16 @@ class ApiVoucherControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/vouchers returns empty page when no vouchers")
+    void getVouchersEmpty() throws Exception {
+        when(voucherService.findFiltered(any(), any())).thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/api/v1/vouchers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andExpect(jsonPath("$.totalElements").value(0));
     }
 }

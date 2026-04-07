@@ -55,6 +55,23 @@ class StatsServiceImplTest {
     }
 
     @Test
+    @DisplayName("should handle null revenue gracefully")
+    void nullRevenue() {
+        when(userRepository.countAllUsers()).thenReturn(5L);
+        when(userRepository.countActiveUsers()).thenReturn(5L);
+        when(voucherRepository.countByStatus(VoucherStatus.AVAILABLE)).thenReturn(10L);
+        when(bookingRepository.countByStatus(BookingStatus.REGISTERED)).thenReturn(0L);
+        when(bookingRepository.countByStatus(BookingStatus.PAID)).thenReturn(0L);
+        when(bookingRepository.countByStatus(BookingStatus.CANCELED)).thenReturn(0L);
+        when(bookingRepository.sumPaidRevenue()).thenReturn(null);
+
+        StatsDTO result = statsService.getStats();
+
+        assertThat(result.getTotalUsers()).isEqualTo(5);
+        assertThat(result.getTotalRevenue()).isZero();
+    }
+
+    @Test
     @DisplayName("should return zeros when no data")
     void emptyStats() {
         when(userRepository.countAllUsers()).thenReturn(0L);

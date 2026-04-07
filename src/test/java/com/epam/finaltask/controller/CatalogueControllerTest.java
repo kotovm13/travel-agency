@@ -2,6 +2,8 @@ package com.epam.finaltask.controller;
 
 import com.epam.finaltask.config.SecurityConfig;
 import com.epam.finaltask.dto.response.VoucherDTO;
+import com.epam.finaltask.exception.InsufficientBalanceException;
+import com.epam.finaltask.exception.ResourceNotFoundException;
 import com.epam.finaltask.service.OrderService;
 import com.epam.finaltask.service.VoucherService;
 import org.junit.jupiter.api.DisplayName;
@@ -16,10 +18,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.junit.jupiter.api.BeforeEach;
+
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -54,10 +60,17 @@ class CatalogueControllerTest {
 
     @MockitoBean
     private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;
-    private static final UUID VOUCHER_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
 
     @MockitoBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    private static final UUID VOUCHER_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
+
+    @BeforeEach
+    void setUp() {
+        when(messageSource.getMessage(any(String.class), any(), any(Locale.class))).thenReturn("message");
+    }
+
     @Test
     @DisplayName("GET /catalogue returns list with model attributes")
     void catalogue() throws Exception {
@@ -94,14 +107,45 @@ class CatalogueControllerTest {
     }
 
     @Test
+    @DisplayName("GET /catalogue/{id} not found returns error page")
+    void detailNotFound() throws Exception {
+        when(voucherService.getById(VOUCHER_ID)).thenThrow(new ResourceNotFoundException("Voucher not found"));
+
+        mockMvc.perform(get("/catalogue/{id}", VOUCHER_ID))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     @WithMockUser
     @DisplayName("POST /catalogue/{id}/order redirects to my-vouchers")
     void orderSuccess() throws Exception {
-        when(orderService.orderVoucher(any(), any())).thenReturn(null);
+        when(orderService.orderVoucher(any(), any())).thenReturn(
+                com.epam.finaltask.dto.response.BookingDTO.builder().id(UUID.randomUUID()).build());
 
         mockMvc.perform(post("/catalogue/{id}/order", VOUCHER_ID).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/my-vouchers"));
+
+        verify(orderService).orderVoucher(any(), any());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("POST /catalogue/{id}/order insufficient balance redirects with error")
+    void orderInsufficientBalance() throws Exception {
+        when(orderService.orderVoucher(any(), any()))
+                .thenThrow(new InsufficientBalanceException("error.balance.insufficient"));
+
+        mockMvc.perform(post("/catalogue/{id}/order", VOUCHER_ID).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("error"));
+    }
+
+    @Test
+    @DisplayName("POST /catalogue/{id}/order without CSRF is forbidden")
+    void orderWithoutCsrfIsForbidden() throws Exception {
+        mockMvc.perform(post("/catalogue/{id}/order", VOUCHER_ID))
+                .andExpect(status().isForbidden());
     }
 
     @Test

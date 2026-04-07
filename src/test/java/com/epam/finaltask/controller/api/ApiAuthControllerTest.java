@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -71,7 +72,8 @@ class ApiAuthControllerTest {
                 .roles("USER")
                 .build();
 
-        when(authenticationManager.authenticate(any())).thenReturn(null);
+        when(authenticationManager.authenticate(any()))
+                .thenReturn(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
         when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
         when(jwtService.generateToken(userDetails)).thenReturn("test-jwt-token");
 
@@ -101,19 +103,29 @@ class ApiAuthControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value("Invalid username or password"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/login empty body returns JSON error")
+    @DisplayName("POST /api/v1/auth/login empty body returns JSON 400")
     void loginEmptyBody() throws Exception {
         String body = objectMapper.writeValueAsString(Map.of("username", "", "password", ""));
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/auth/login missing body returns JSON error")
+    void loginNoBody() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 }

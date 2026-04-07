@@ -17,10 +17,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.junit.jupiter.api.BeforeEach;
+
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,10 +59,17 @@ class AdminControllerTest {
 
     @MockitoBean
     private com.epam.finaltask.config.OAuth2UserService oAuth2UserService;
-    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @MockitoBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+    @BeforeEach
+    void setUp() {
+        when(messageSource.getMessage(any(String.class), any(), any(Locale.class))).thenReturn("message");
+    }
+
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /admin/users returns user list")
@@ -73,6 +84,19 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/users with email filter")
+    void usersWithEmailFilter() throws Exception {
+        when(userManagementService.getAllUsers(any(), any(), any(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/admin/users")
+                        .param("email", "test@example.com"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/users"))
+                .andExpect(model().attribute("email", "test@example.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("POST /admin/users/{id}/block redirects")
     void blockUser() throws Exception {
         when(userManagementService.blockUser(any(), any())).thenReturn(UserDTO.builder().build());
@@ -80,6 +104,21 @@ class AdminControllerTest {
         mockMvc.perform(post("/admin/users/{id}/block", USER_ID).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/users"));
+
+        verify(userManagementService).blockUser(any(), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /admin/users/{id}/unblock redirects")
+    void unblockUser() throws Exception {
+        when(userManagementService.unblockUser(any(), any())).thenReturn(UserDTO.builder().build());
+
+        mockMvc.perform(post("/admin/users/{id}/unblock", USER_ID).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/users"));
+
+        verify(userManagementService).unblockUser(any(), any());
     }
 
     @Test
@@ -92,6 +131,32 @@ class AdminControllerTest {
                         .param("role", "MANAGER"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/users"));
+
+        verify(userManagementService).changeRole(any(), any(), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("GET /admin/users/{id} returns user detail")
+    void viewUser() throws Exception {
+        when(userManagementService.getUserById(USER_ID))
+                .thenReturn(UserDTO.builder().id(USER_ID).username("testuser").build());
+
+        mockMvc.perform(get("/admin/users/{id}", USER_ID))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/user-detail"))
+                .andExpect(model().attributeExists("user", "currentUsername"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /admin/users/{id}/reset-password redirects to user detail")
+    void resetPassword() throws Exception {
+        mockMvc.perform(post("/admin/users/{id}/reset-password", USER_ID).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/users/" + USER_ID));
+
+        verify(userManagementService).resetPassword(USER_ID, "user");
     }
 
     @Test
@@ -120,5 +185,12 @@ class AdminControllerTest {
     void forbiddenForManager() throws Exception {
         mockMvc.perform(get("/admin/users"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("GET /admin/users unauthenticated redirects to login")
+    void unauthenticatedRedirectsToLogin() throws Exception {
+        mockMvc.perform(get("/admin/users"))
+                .andExpect(status().is3xxRedirection());
     }
 }
