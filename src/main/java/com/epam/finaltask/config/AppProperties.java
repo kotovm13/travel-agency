@@ -15,7 +15,7 @@ public class AppProperties {
     @Data
     public static class Security {
         private String defaultPassword = "12345678";
-        private long jwtExpirationMs = 86400000;
+        private long jwtExpirationMs = 86400000; //24 hours
         private long blockedCacheRefreshMs = 30000;
         private int passwordMinLength = 8;
     }

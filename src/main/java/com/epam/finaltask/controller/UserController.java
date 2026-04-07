@@ -15,7 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Controller
@@ -41,10 +40,16 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/profile/topup")
-    public String topUp(@RequestParam BigDecimal amount,
+    public String topUp(@Valid TopUpDTO topUpDTO,
+                        BindingResult bindingResult,
                         java.security.Principal principal,
                         RedirectAttributes redirectAttributes) {
-        userService.topUpBalance(principal.getName(), TopUpDTO.builder().amount(amount).build());
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR,
+                    bindingResult.getFieldError().getDefaultMessage());
+            return REDIRECT_PROFILE;
+        }
+        userService.topUpBalance(principal.getName(), topUpDTO);
         redirectAttributes.addFlashAttribute(ATTR_SUCCESS, getMessage("success.topup"));
         return REDIRECT_PROFILE;
     }
