@@ -42,11 +42,14 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UserDTO> getAllUsers(String search, String role, String status, Pageable pageable) {
+    public Page<UserDTO> getAllUsers(String search, String email, String role, String status, Pageable pageable) {
         Specification<User> spec = Specification.where(null);
 
         if (hasValue(search)) {
             spec = spec.and(UserSpecification.usernameContains(search));
+        }
+        if (hasValue(email)) {
+            spec = spec.and(UserSpecification.emailContains(email));
         }
         if (hasValue(role)) {
             spec = spec.and(UserSpecification.hasRole(role));

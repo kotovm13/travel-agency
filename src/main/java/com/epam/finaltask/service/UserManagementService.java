@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface UserManagementService {
 
-    Page<UserDTO> getAllUsers(String search, String role, String status, Pageable pageable);
+    Page<UserDTO> getAllUsers(String search, String email, String role, String status, Pageable pageable);
 
     UserDTO blockUser(UUID id, String currentUsername);
 

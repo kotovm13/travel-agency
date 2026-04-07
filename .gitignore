@@ -1,0 +1,30 @@
+# Compiled class files
+target/
+
+# Log files
+logs/
+
+# Maven wrapper jar
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+*.env
+
+# Application properties overrides
+application-local.yml
+application-local.properties

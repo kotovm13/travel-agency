@@ -84,7 +84,7 @@ class UserManagementServiceImplTest {
             when(userRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), eq(pageable))).thenReturn(page);
             when(userMapper.toUserDTO(testUser)).thenReturn(testUserDTO);
 
-            Page<UserDTO> result = userManagementService.getAllUsers(null, null, null, pageable);
+            Page<UserDTO> result = userManagementService.getAllUsers(null, null, null, null, pageable);
 
             assertThat(result.getContent()).hasSize(1);
         }
@@ -95,7 +95,7 @@ class UserManagementServiceImplTest {
             Pageable pageable = PageRequest.of(0, 10);
             when(userRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class), eq(pageable))).thenReturn(Page.empty());
 
-            Page<UserDTO> result = userManagementService.getAllUsers(null, null, null, pageable);
+            Page<UserDTO> result = userManagementService.getAllUsers(null, null, null, null, pageable);
 
             assertThat(result.getContent()).isEmpty();
         }

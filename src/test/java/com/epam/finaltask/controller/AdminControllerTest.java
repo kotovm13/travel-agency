@@ -63,7 +63,7 @@ class AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /admin/users returns user list")
     void users() throws Exception {
-        when(userManagementService.getAllUsers(any(), any(), any(), any())).thenReturn(new PageImpl<>(List.of()));
+        when(userManagementService.getAllUsers(any(), any(), any(), any(), any())).thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(get("/admin/users"))
                 .andExpect(status().isOk())

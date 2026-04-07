@@ -21,6 +21,7 @@ public class AdminController extends BaseController {
     private static final String REDIRECT_USERS = "redirect:/admin/users";
     private static final String ATTR_SUCCESS = "success";
     private static final String ATTR_SEARCH = "search";
+    private static final String ATTR_EMAIL = "email";
     private static final String ATTR_ROLE_FILTER = "roleFilter";
     private static final String ATTR_STATUS_FILTER = "statusFilter";
 
@@ -29,14 +30,16 @@ public class AdminController extends BaseController {
 
     @GetMapping("/users")
     public String users(@RequestParam(required = false) String search,
+                        @RequestParam(required = false) String email,
                         @RequestParam(required = false) String roleFilter,
                         @RequestParam(required = false) String statusFilter,
                         @RequestParam(defaultValue = "0") int page,
                         java.security.Principal principal,
                         Model model) {
-        model.addAttribute("users", userManagementService.getAllUsers(search, roleFilter, statusFilter, PageRequest.of(page, appProperties.getPagination().getAdminPageSize())));
+        model.addAttribute("users", userManagementService.getAllUsers(search, email, roleFilter, statusFilter, PageRequest.of(page, appProperties.getPagination().getAdminPageSize())));
         model.addAttribute("currentUsername", principal.getName());
         model.addAttribute(ATTR_SEARCH, search);
+        model.addAttribute(ATTR_EMAIL, email);
         model.addAttribute(ATTR_ROLE_FILTER, roleFilter);
         model.addAttribute(ATTR_STATUS_FILTER, statusFilter);
         model.addAttribute("roles", Role.values());
